@@ -60,10 +60,10 @@ namespace Eurostep.Excel
 
         public bool ReadToHeaders(params string[] headers)
         {
-            var hashToName = GetHashToNameLookup(headers);
+            IDictionary<string, string> hashToName = GetHashToNameLookup(headers);
             while (Read(out IRow? row))
             {
-                var values = row.GetValues();
+                string?[] values = row.GetValues();
                 if (values.Length < headers.Length) continue;
                 int found = 0;
                 for (int i = 0; i < values.Length; i++)
@@ -80,7 +80,7 @@ namespace Eurostep.Excel
 
         private IDictionary<string, string> GetHashToNameLookup(string[] headers)
         {
-            var hashToName = new Dictionary<string, string>();
+            Dictionary<string, string> hashToName = [];
             foreach (string header in headers)
             {
                 string hash = header.GetToUpperWithoutWhiteSpace();

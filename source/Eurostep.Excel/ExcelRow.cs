@@ -21,7 +21,7 @@ namespace Eurostep.Excel
 
         public ICell? GetCellByColumnId(string column)
         {
-            var result = GetCellByReference(column);
+            ICell? result = GetCellByReference(column);
             if (result != null) return result;
             return default;
         }
@@ -29,23 +29,35 @@ namespace Eurostep.Excel
         public ICell? GetCellByColumnIndex(uint index)
         {
             string column = GetColumnName(index);
-            var result = GetCellByReference(column);
+            ICell? result = GetCellByReference(column);
             if (result != null) return result;
             return default;
         }
 
-        public IEnumerator<ICell> GetEnumerator() => new CellEnumerator(_row, Context);
+        public IEnumerator<ICell> GetEnumerator()
+        {
+            return new CellEnumerator(_row, Context);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => new CellEnumerator(_row, Context);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new CellEnumerator(_row, Context);
+        }
 
-        public IRowReader GetReader() => new RowReader(this, Context);
+        public IRowReader GetReader()
+        {
+            return new RowReader(this, Context);
+        }
 
-        public ITableRow GetTableRow(IHeaderLookup lookup) => new TableRow(this, lookup, Context);
+        public ITableRow GetTableRow(IHeaderLookup lookup)
+        {
+            return new TableRow(this, lookup, Context);
+        }
 
         public string?[] GetValues()
         {
             string?[] result = new string[Length];
-            using var enumerator = GetEnumerator();
+            using IEnumerator<ICell> enumerator = GetEnumerator();
             while (enumerator.MoveNext())
             {
                 ICell c = enumerator.Current;
@@ -61,7 +73,7 @@ namespace Eurostep.Excel
 
         protected override bool GetIsEmpty()
         {
-            using var enumerator = GetEnumerator();
+            using IEnumerator<ICell> enumerator = GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (enumerator.Current.IsEmpty == false) return false;
@@ -72,7 +84,7 @@ namespace Eurostep.Excel
         private ICell? GetCellByReference(string column)
         {
             string reference = $"{column}{RowIndex}";
-            foreach (var element in _row)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement element in _row)
             {
                 if (element is not Cell cell) continue;
                 if (cell.CellReference is null) continue;
@@ -89,7 +101,7 @@ namespace Eurostep.Excel
             if (_row.LastChild is null) return 0;
             if (_row.LastChild is not Cell l) throw new ApplicationException("LastChild on Row is not a Cell");
             string r = l.CellReference?.Value ?? throw new ArgumentNullException(nameof(Cell.CellReference));
-            var reference = ParseReference(r);
+            (string Column, uint Row) reference = ParseReference(r);
             int index = GetColumnIndex(reference.Column);
             _length = index + 1;
             return _length.Value;

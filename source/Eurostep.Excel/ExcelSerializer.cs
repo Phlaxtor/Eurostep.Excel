@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Eurostep.Excel
+﻿namespace Eurostep.Excel
 {
     public abstract class ExcelSerializer
     {
         private readonly Type _type;
+
         protected ExcelSerializer(Type type)
         {
             _type = type;
@@ -16,13 +11,13 @@ namespace Eurostep.Excel
 
         public static IEnumerable<T> Deserialize<T>(Stream stream)
         {
-            var serializer = new ExcelSerializer<T>();
+            ExcelSerializer<T> serializer = new ExcelSerializer<T>();
             return serializer.Deserialize(stream);
         }
 
         public static void Serialize<T>(Stream stream, IEnumerable<T> collection)
         {
-            var serializer = new ExcelSerializer<T>();
+            ExcelSerializer<T> serializer = new ExcelSerializer<T>();
             serializer.Serialize(stream, collection);
         }
     }

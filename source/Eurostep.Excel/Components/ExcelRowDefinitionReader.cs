@@ -15,18 +15,18 @@ public class ExcelRowDefinitionReader
     private bool CheckColumnNames<T>(T rowInstance, Dictionary<string, string> headerRow)
         where T : ExcelRowDefinition
     {
-        rowInstance.HeadingsWithColumnNames = new Dictionary<string, string>();
+        rowInstance.HeadingsWithColumnNames = [];
         bool ret = true;
         Type objtype = rowInstance.GetType();
         // Loop through all properties
-        var fieldNames = new List<string>();
+        List<string> fieldNames = [];
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            var fieldNameAttribute = p.GetCustomAttribute<ExcelColumnAttribute>(false);
+            ExcelColumnAttribute? fieldNameAttribute = p.GetCustomAttribute<ExcelColumnAttribute>(false);
             if (fieldNameAttribute != null)
             {
-                var name = fieldNameAttribute.Heading;
-                var cell = headerRow.FirstOrDefault(p => name.Equals(p.Value.Trim(), StringComparison.InvariantCultureIgnoreCase));
+                string name = fieldNameAttribute.Heading;
+                KeyValuePair<string, string> cell = headerRow.FirstOrDefault(p => name.Equals(p.Value.Trim(), StringComparison.InvariantCultureIgnoreCase));
                 if (cell.Key == null)
                 {
                     LogError($"Sheet {rowInstance.SheetName}: Heading \"{name}\" not found in header row {headerRow}.");
@@ -58,7 +58,7 @@ public class ExcelRowDefinitionReader
 
     private string GetCellValue(SpreadsheetDocument self, Cell cell, SharedStringItem[] sharedStrings)
     {
-        var foundValue = string.Empty;
+        string foundValue = string.Empty;
         if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
         {
             foundValue = sharedStrings[int.Parse(cell.CellValue!.Text)].InnerText;
@@ -77,7 +77,7 @@ public class ExcelRowDefinitionReader
     private DateTime? GetDateTimeValue(Dictionary<string, string> row, string key)
     {
         DateTime? parsedDate = null;
-        var value = GetStringValue(row, key);
+        string? value = GetStringValue(row, key);
         if (!string.IsNullOrWhiteSpace(value))
         {
             try
@@ -99,7 +99,7 @@ public class ExcelRowDefinitionReader
     private int? GetIntValue(Dictionary<string, string> row, string key)
     {
         int? ret = null;
-        var value = GetStringValue(row, key);
+        string? value = GetStringValue(row, key);
         if (value.IsInteger())
         {
             ret = int.Parse(value);
@@ -119,10 +119,10 @@ public class ExcelRowDefinitionReader
             throw new ArgumentNullException("lowerLeftCell", "The provided Cell must not be null.");
         }
 
-        var columnStart = upperRightCell.GetColumnName();
-        var columnEnd = lowerLeftCell.GetColumnName();
-        var rowStart = upperRightCell.GetRowIndex();
-        var rowEnd = lowerLeftCell.GetRowIndex();
+        string columnStart = upperRightCell.GetColumnName();
+        string columnEnd = lowerLeftCell.GetColumnName();
+        uint rowStart = upperRightCell.GetRowIndex();
+        uint rowEnd = lowerLeftCell.GetRowIndex();
 
         return GetRowsExcelSheetArea(self, columnStart, rowStart, columnEnd, rowEnd);
     }
@@ -139,21 +139,21 @@ public class ExcelRowDefinitionReader
             throw new ArgumentException("The provided SheetDimension.Reference must have an value.", "area");
         }
 
-        var startEndValues = area.Reference.Value.Split(':');
-        var startValue = startEndValues.FirstOrDefault();
-        var endValue = startEndValues.LastOrDefault();
-        var columnStart = ExcelUtilityMethods.GetColumnName(startValue);
-        var columnEnd = ExcelUtilityMethods.GetColumnName(endValue);
-        var rowStart = ExcelUtilityMethods.GetRowIndex(startValue);
-        var rowEnd = ExcelUtilityMethods.GetRowIndex(endValue);
+        string[] startEndValues = area.Reference.Value.Split(':');
+        string? startValue = startEndValues.FirstOrDefault();
+        string? endValue = startEndValues.LastOrDefault();
+        string columnStart = ExcelUtilityMethods.GetColumnName(startValue);
+        string columnEnd = ExcelUtilityMethods.GetColumnName(endValue);
+        uint rowStart = ExcelUtilityMethods.GetRowIndex(startValue);
+        uint rowEnd = ExcelUtilityMethods.GetRowIndex(endValue);
 
         return GetRowsExcelSheetArea(self, columnStart, rowStart, columnEnd, rowEnd);
     }
 
     private Dictionary<uint, Dictionary<string, string>> GetRowsExcelSheetArea(WorksheetPart self, string columnStart, uint rowStart, string columnEnd, uint rowEnd)
     {
-        var returnArrayOfRows = new Dictionary<uint, Dictionary<string, string>>();
-        var indexedRow = new Dictionary<string, string>();
+        Dictionary<uint, Dictionary<string, string>> returnArrayOfRows = [];
+        Dictionary<string, string> indexedRow = [];
         IEnumerable<Cell> cells =
             self.Worksheet.Descendants<Cell>().Where(
             c =>
@@ -164,7 +164,7 @@ public class ExcelRowDefinitionReader
                 .OrderBy(q => q.GetRowIndex())
                 .ThenBy(r => r.GetColumnIndex());
 
-        var spreadsheetDocument = self.OpenXmlPackage.GetSpreadsheetDocument();
+        SpreadsheetDocument spreadsheetDocument = self.OpenXmlPackage.GetSpreadsheetDocument();
         SharedStringItem[] sharedStringItems = Array.Empty<SharedStringItem>();
         IEnumerable<SharedStringTablePart> sharedStringPartCollection = spreadsheetDocument.WorkbookPart!.GetPartsOfType<SharedStringTablePart>();
         if (sharedStringPartCollection.IsNullOrEmpty())
@@ -175,19 +175,18 @@ public class ExcelRowDefinitionReader
         else
         {
             // there supposed to be exactly one shared string part
-            var shareStringPart = sharedStringPartCollection.Single();
+            SharedStringTablePart shareStringPart = sharedStringPartCollection.Single();
             sharedStringItems = shareStringPart!.SharedStringTable.Elements<SharedStringItem>().ToArray();
         }
 
         foreach (Cell cell in cells)
         {
-            var columnName = cell.GetColumnName();
-            var rowNumber = cell.GetRowIndex();
-            var cellValue = GetCellValue(spreadsheetDocument, cell, sharedStringItems);
-            Dictionary<string, string> rowInfo;
-            if (!returnArrayOfRows.TryGetValue(rowNumber, out rowInfo))
+            string columnName = cell.GetColumnName();
+            uint rowNumber = cell.GetRowIndex();
+            string cellValue = GetCellValue(spreadsheetDocument, cell, sharedStringItems);
+            if (!returnArrayOfRows.TryGetValue(rowNumber, out Dictionary<string, string> rowInfo))
             {
-                rowInfo = new Dictionary<string, string>();
+                rowInfo = [];
                 returnArrayOfRows[rowNumber] = rowInfo;
             }
 
@@ -205,12 +204,12 @@ public class ExcelRowDefinitionReader
                 return GetRowsExcelSheetArea(self, self.Worksheet.SheetDimension);
             }
 
-            var upperRightCell = self.Worksheet.LastChild?.FirstChild?.FirstChild as Cell;
+            Cell? upperRightCell = self.Worksheet.LastChild?.FirstChild?.FirstChild as Cell;
             if (upperRightCell == null)
             {
                 upperRightCell = self.Worksheet.Descendants<Row>()?.FirstOrDefault()?.Descendants<Cell>()?.FirstOrDefault();
             }
-            var lowerLeftCell = self.Worksheet.LastChild?.LastChild?.LastChild as Cell;
+            Cell? lowerLeftCell = self.Worksheet.LastChild?.LastChild?.LastChild as Cell;
             if (lowerLeftCell == null)
             {
                 lowerLeftCell = self.Worksheet.Descendants<Row>()?.LastOrDefault()?.Descendants<Cell>()?.LastOrDefault();
@@ -238,16 +237,16 @@ public class ExcelRowDefinitionReader
         Type objtype = rowInstance.GetType();
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            var fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
             if (fieldNameAttribute != null)
             {
-                var key = ((ExcelColumnAttribute)fieldNameAttribute).Column;
-                var heading = ((ExcelColumnAttribute)fieldNameAttribute).Heading;
+                string key = ((ExcelColumnAttribute)fieldNameAttribute).Column;
+                string heading = ((ExcelColumnAttribute)fieldNameAttribute).Heading;
                 worksheet.SetColumnsData(key, 20);
                 worksheet.WriteValueInCell(key, rowInstance.HeaderRow, heading);
                 if (rowInstance.DescriptionRow.HasValue)
                 {
-                    var description = ((ExcelColumnAttribute)fieldNameAttribute).Description;
+                    string description = ((ExcelColumnAttribute)fieldNameAttribute).Description;
                     worksheet.WriteValueInCell(key, rowInstance.DescriptionRow.Value, description);
                 }
             }
@@ -259,7 +258,7 @@ public class ExcelRowDefinitionReader
         where T : ExcelRowDefinition, new()
     {
         LogError = errorLogger;
-        List<T> data = new List<T>();
+        List<T> data = [];
         using (SpreadsheetDocument spreadsheet = SpreadsheetDocument.Open(stream, false))
         {
             T t = new T()
@@ -285,7 +284,7 @@ public class ExcelRowDefinitionReader
     {
         // TODO: Should use a standard logger and contrib to Eurostep.Implementation (ABI 2024-02)
         LogError = errorLogger;
-        List<T> data = new List<T>();
+        List<T> data = [];
         using (SpreadsheetDocument spreadsheet = SpreadsheetDocument.Open(stream, false))
         {
             T t = new T()
@@ -333,7 +332,8 @@ public class ExcelRowDefinitionReader
         {
             LogError($"Sheet {sheetName} not found in the input file.");
             throw new InvalidDataException($"Invalid input file: Sheet {sheetName} not found in the input file.");
-        };
+        }
+        ;
         Dictionary<uint, Dictionary<string, string>> sheetArea = GetRowsExcelSheetArea(worksheetPart);
 
         if (!CheckSheet(t, sheetArea))
@@ -341,14 +341,14 @@ public class ExcelRowDefinitionReader
             throw new InvalidDataException($"Invalid input file: Invalid data in sheet {sheetName}");
         }
 
-        foreach (var row in sheetArea)
+        foreach (KeyValuePair<uint, Dictionary<string, string>> row in sheetArea)
         {
             if (row.Key < t.FirstDataRow) { continue; }
-            T instance = new T()
+            T instance = new T
             {
-                SheetName = sheetName
+                SheetName = sheetName,
+                HeadingsWithColumnNames = t.HeadingsWithColumnNames
             };
-            instance.HeadingsWithColumnNames = t.HeadingsWithColumnNames;
             ReadRow(instance, row);
             data.Add(instance);
         }
@@ -362,10 +362,10 @@ public class ExcelRowDefinitionReader
         Type objtype = rowInstance.GetType();
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            var fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
             if (fieldNameAttribute != null)
             {
-                var key = rowInstance.HeadingsWithColumnNames[((ExcelColumnAttribute)fieldNameAttribute).Heading];
+                string key = rowInstance.HeadingsWithColumnNames[((ExcelColumnAttribute)fieldNameAttribute).Heading];
 
                 if (p.PropertyType == typeof(string))
                 {
@@ -393,13 +393,13 @@ public class ExcelRowDefinitionReader
         Type objtype = rowInstance.GetType();
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            var fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
             if (fieldNameAttribute != null)
             {
                 string columnName = ((ExcelColumnAttribute)fieldNameAttribute).Column;
                 if (p.PropertyType == typeof(string))
                 {
-                    var value = (string?)p.GetValue(entry);
+                    string? value = (string?)p.GetValue(entry);
                     worksheet.WriteValueInCell(columnName, rowIndex, value);
                 }
                 else if (p.PropertyType == typeof(DateTime?))

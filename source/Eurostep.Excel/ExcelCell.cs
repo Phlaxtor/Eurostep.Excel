@@ -80,7 +80,10 @@ namespace Eurostep.Excel
             return GetColumnIndex(Column);
         }
 
-        protected override bool GetIsEmpty() => string.IsNullOrWhiteSpace(Value);
+        protected override bool GetIsEmpty()
+        {
+            return string.IsNullOrWhiteSpace(Value);
+        }
 
         private string? GetCellValue()
         {
@@ -109,7 +112,7 @@ namespace Eurostep.Excel
         private string GetColumn()
         {
             if (_column != null) return _column;
-            var reference = ParseReference(CellReference);
+            (string Column, uint Row) reference = ParseReference(CellReference);
             _column = reference.Column;
             _row = reference.Row;
             return _column;
@@ -118,7 +121,7 @@ namespace Eurostep.Excel
         private DataType GetDataType()
         {
             if (_dataType.HasValue) return _dataType.Value;
-            var type = GetCellValuesType();
+            CellValues type = GetCellValuesType();
             _dataType = type switch
             {
                 CellValues.Boolean => DataType.Boolean,
@@ -150,7 +153,7 @@ namespace Eurostep.Excel
         private uint GetRow()
         {
             if (_row.HasValue) return _row.Value;
-            var reference = ParseReference(CellReference);
+            (string Column, uint Row) reference = ParseReference(CellReference);
             _column = reference.Column;
             _row = reference.Row;
             return _row.Value;

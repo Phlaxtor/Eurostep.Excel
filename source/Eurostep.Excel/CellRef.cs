@@ -36,8 +36,10 @@ namespace Eurostep.Excel
 
         public string? SheetId { get; }
 
-
-        public static implicit operator string(CellRef c) => c.ToString();
+        public static implicit operator string(CellRef c)
+        {
+            return c.ToString();
+        }
 
         public static bool operator !=(CellRef l, CellRef r)
         {

@@ -23,24 +23,24 @@ namespace Eurostep.Excel.Components
 
         public uint GetGeneralStyle(GeneralColor cellFill, GeneralColor fontColor, double fontSize = 11)
         {
-            var allignment = _writer.GetAlignment(HorizontalAlignmentValues.Left, VerticalAlignmentValues.Center);
-            var fontId = _writer.CreateFont("Calibri", fontSize, false, false, UnderlineValues.None, fontColor);
-            var fillId = _writer.CreateFill(PatternValues.Solid, cellFill);
-            var protection = _writer.GetProtection(false, false);
-            var cellFormat = _writer.CreateCellFormat(null, null, allignment, fontId, null, fillId, protection);
+            Alignment allignment = _writer.GetAlignment(HorizontalAlignmentValues.Left, VerticalAlignmentValues.Center);
+            FontStyleValue fontId = _writer.CreateFont("Calibri", fontSize, false, false, UnderlineValues.None, fontColor);
+            FillStyleValue fillId = _writer.CreateFill(PatternValues.Solid, cellFill);
+            Protection protection = _writer.GetProtection(false, false);
+            uint cellFormat = _writer.CreateCellFormat(null, null, allignment, fontId, null, fillId, protection);
             _writer.Spreasheet.Save();
             return cellFormat;
         }
 
         public uint GetHeaderStyle(GeneralColor cellFill, GeneralColor fontColor, double fontSize = 11)
         {
-            var borderStyle = new BorderPart(BorderStyleValues.Thin, KnownColor.DarkGray);
-            var allignment = _writer.GetAlignment(HorizontalAlignmentValues.Left, VerticalAlignmentValues.Center);
-            var fontId = _writer.CreateFont("Calibri", fontSize, true, false, UnderlineValues.None, fontColor);
-            var borderId = _writer.CreateBorder(top: borderStyle, bottom: borderStyle);
-            var fillId = _writer.CreateFill(PatternValues.Solid, cellFill);
-            var protection = _writer.GetProtection(false, true);
-            var cellFormat = _writer.CreateCellFormat(null, null, allignment, fontId, borderId, fillId, protection);
+            BorderPart borderStyle = new BorderPart(BorderStyleValues.Thin, KnownColor.DarkGray);
+            Alignment allignment = _writer.GetAlignment(HorizontalAlignmentValues.Left, VerticalAlignmentValues.Center);
+            FontStyleValue fontId = _writer.CreateFont("Calibri", fontSize, true, false, UnderlineValues.None, fontColor);
+            BorderStyleValue borderId = _writer.CreateBorder(top: borderStyle, bottom: borderStyle);
+            FillStyleValue fillId = _writer.CreateFill(PatternValues.Solid, cellFill);
+            Protection protection = _writer.GetProtection(false, true);
+            uint cellFormat = _writer.CreateCellFormat(null, null, allignment, fontId, borderId, fillId, protection);
             _writer.Spreasheet.Save();
             return cellFormat;
         }

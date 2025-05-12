@@ -21,7 +21,7 @@ namespace Eurostep.Excel
 
         public static ISheetWriter GetClient(Stream stream, string sheetName)
         {
-            var writer = new ExcelWriter(stream);
+            ExcelWriter writer = new ExcelWriter(stream);
             writer.AddNewTab(sheetName);
             return new SheetWriter(writer, sheetName);
         }
@@ -33,12 +33,15 @@ namespace Eurostep.Excel
             _writer.AddHeaders(headers);
         }
 
-        public HeaderBuilder AddHeaders() => new HeaderBuilder(_writer, SheetName);
+        public HeaderBuilder AddHeaders()
+        {
+            return new HeaderBuilder(_writer, SheetName);
+        }
 
         public void AddIntegerValidation(ColumnId applyColumn, uint applyRowStart, int minValue, int maxValue, string? errorTitle = null)
         {
             _writer.SetCurrentTab(SheetName);
-            var validationRange = new ColumnRange(applyColumn, applyRowStart, ColumnRange.RowMax);
+            ColumnRange validationRange = new ColumnRange(applyColumn, applyRowStart, ColumnRange.RowMax);
             string errorText = $"Value must be a number between {minValue} - {maxValue}";
             _writer.AddDataValidationWhole(validationRange, minValue, maxValue, errorText, errorTitle);
         }
@@ -49,7 +52,7 @@ namespace Eurostep.Excel
             ColumnRange range = new ColumnRange(mandatoryColumn, rowStart);
             StringBuilder condition = new StringBuilder($"AND({mandatoryColumn}{rowStart}=\"\", OR(");
             string delimiter = string.Empty;
-            foreach (var c in checkColumns)
+            foreach (ColumnId c in checkColumns)
             {
                 condition.Append(delimiter);
                 condition.Append($"{c}{rowStart}<>\"\"");
@@ -62,8 +65,8 @@ namespace Eurostep.Excel
         public void AddRangeValidation(ColumnId applyColumn, uint applyRowStart, ColumnId valuesColumn, uint valuesCount, string validationSheetId, string? errorTitle = null)
         {
             _writer.SetCurrentTab(SheetName);
-            var allowedValues = new ColumnRange(valuesColumn, 2, 2 + valuesCount, validationSheetId);
-            var validationRange = new ColumnRange(applyColumn, applyRowStart, ColumnRange.RowMax);
+            ColumnRange allowedValues = new ColumnRange(valuesColumn, 2, 2 + valuesCount, validationSheetId);
+            ColumnRange validationRange = new ColumnRange(applyColumn, applyRowStart, ColumnRange.RowMax);
             string errorText = $"Value not allowed";
             _writer.AddDataValidationList(validationRange, allowedValues, errorText, errorTitle);
         }
@@ -82,7 +85,10 @@ namespace Eurostep.Excel
             _writer.AddNewRow(values);
         }
 
-        public RowBuilder AddRow() => new RowBuilder(this);
+        public RowBuilder AddRow()
+        {
+            return new RowBuilder(this);
+        }
 
         public int AddRowCount()
         {
@@ -100,7 +106,7 @@ namespace Eurostep.Excel
             }
         }
 
-        public void AddVerticalColumn(string header, CellStyle? style, params string[] values)
+        public void AddVerticalColumn(string header, CellStyleValue? style, params string[] values)
         {
             _writer.SetCurrentTab(SheetName);
             RowCount++;

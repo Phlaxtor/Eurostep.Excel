@@ -54,7 +54,10 @@ namespace Eurostep.Excel
         public uint TotalColumns => EndColumn - StartColumn + 1;
         public uint TotalRows => EndRow - StartRow + 1;
 
-        public static implicit operator string(CellArea c) => c.ToString();
+        public static implicit operator string(CellArea c)
+        {
+            return c.ToString();
+        }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {

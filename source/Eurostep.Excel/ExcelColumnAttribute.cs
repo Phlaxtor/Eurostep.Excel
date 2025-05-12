@@ -2,7 +2,7 @@
 
 public class ExcelColumnAttribute : ExcelAttribute
 {
-    public ExcelColumnAttribute(string heading)
+    public ExcelColumnAttribute(string heading) : base()
     {
         Heading = heading;
     }

@@ -45,11 +45,20 @@ namespace Eurostep.Excel
         public string Hex => _color.R.ToString("X2") + _color.G.ToString("X2") + _color.B.ToString("X2");
         public Color SystemDrawingColor => _color;
 
-        public static implicit operator Color(GeneralColor c) => c.SystemDrawingColor;
+        public static implicit operator Color(GeneralColor c)
+        {
+            return c.SystemDrawingColor;
+        }
 
-        public static implicit operator GeneralColor(Color c) => new GeneralColor(c);
+        public static implicit operator GeneralColor(Color c)
+        {
+            return new GeneralColor(c);
+        }
 
-        public static implicit operator GeneralColor(KnownColor c) => new GeneralColor(c);
+        public static implicit operator GeneralColor(KnownColor c)
+        {
+            return new GeneralColor(c);
+        }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {

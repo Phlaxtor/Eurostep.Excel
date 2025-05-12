@@ -15,20 +15,17 @@ namespace Eurostep.Excel
 
         public static bool? GetBoolean(this string self)
         {
-            bool boolValue;
-            if (self.IsBoolean() && bool.TryParse(self, out boolValue))
+            if (self.IsBoolean() && bool.TryParse(self, out bool boolValue))
             {
                 return boolValue;
             }
 
-            byte byteValue;
-            if (self.IsByte() && byte.TryParse(self, out byteValue))
+            if (self.IsByte() && byte.TryParse(self, out byte byteValue))
             {
                 return Convert.ToBoolean(byteValue);
             }
 
-            double doubleValue;
-            if (self.IsDouble() && double.TryParse(self, out doubleValue))
+            if (self.IsDouble() && double.TryParse(self, out double doubleValue))
             {
                 return Convert.ToBoolean(doubleValue);
             }
@@ -38,7 +35,7 @@ namespace Eurostep.Excel
 
         public static string? GetBooleanText(this string self)
         {
-            var value = self.GetBoolean();
+            bool? value = self.GetBoolean();
             if (value.HasValue) return value.Value.ToString();
             return null;
         }
@@ -60,20 +57,17 @@ namespace Eurostep.Excel
 
         public static DateTime? GetDateTime(this string self)
         {
-            DateTime dateValue;
-            if (self.IsDateTime() && DateTime.TryParse(self, out dateValue))
+            if (self.IsDateTime() && DateTime.TryParse(self, out DateTime dateValue))
             {
                 return dateValue;
             }
 
-            double doubleValue;
-            if (self.IsDouble() && double.TryParse(self, out doubleValue))
+            if (self.IsDouble() && double.TryParse(self, out double doubleValue))
             {
                 return DateTime.FromOADate(doubleValue);
             }
 
-            long longValue;
-            if (self.IsLong() && long.TryParse(self, out longValue))
+            if (self.IsLong() && long.TryParse(self, out long longValue))
             {
                 return DateTime.FromOADate(longValue);
             }
@@ -83,7 +77,7 @@ namespace Eurostep.Excel
 
         public static string? GetDateTimeText(this string self)
         {
-            var value = self.GetDateTime();
+            DateTime? value = self.GetDateTime();
             if (value.HasValue) return value.Value.ToString();
             return null;
         }
@@ -137,8 +131,7 @@ namespace Eurostep.Excel
         {
             if (!string.IsNullOrWhiteSpace(self))
             {
-                bool x;
-                if (bool.TryParse(self, out x))
+                if (bool.TryParse(self, out bool x))
                 {
                     return true;
                 }
@@ -151,8 +144,7 @@ namespace Eurostep.Excel
         {
             if (!string.IsNullOrWhiteSpace(self))
             {
-                byte x;
-                if (byte.TryParse(self, out x))
+                if (byte.TryParse(self, out byte x))
                 {
                     return true;
                 }
@@ -165,8 +157,7 @@ namespace Eurostep.Excel
         {
             if (!string.IsNullOrWhiteSpace(self))
             {
-                DateTime x;
-                if (DateTime.TryParse(self, out x))
+                if (DateTime.TryParse(self, out DateTime x))
                 {
                     return true;
                 }
@@ -179,8 +170,7 @@ namespace Eurostep.Excel
         {
             if (!string.IsNullOrWhiteSpace(self))
             {
-                double x;
-                if (double.TryParse(self, out x))
+                if (double.TryParse(self, out double x))
                 {
                     return true;
                 }
@@ -193,8 +183,8 @@ namespace Eurostep.Excel
         {
             if (string.IsNullOrWhiteSpace(self)) return false;
             if (string.IsNullOrWhiteSpace(other)) return false;
-            var s = self.Trim();
-            var o = other.Trim();
+            string s = self.Trim();
+            string o = other.Trim();
             return string.CompareOrdinal(s, o) == 0;
         }
 
@@ -202,8 +192,7 @@ namespace Eurostep.Excel
         {
             if (!string.IsNullOrWhiteSpace(self))
             {
-                long x;
-                if (long.TryParse(self, out x))
+                if (long.TryParse(self, out long x))
                 {
                     return true;
                 }
@@ -233,7 +222,7 @@ namespace Eurostep.Excel
 
         public static bool IsValidDate(this DateTime self)
         {
-            var date = self.GetDate();
+            DateTime date = self.GetDate();
             if (date.TimeOfDay == TimeSpan.Zero) return true;
             return false;
         }

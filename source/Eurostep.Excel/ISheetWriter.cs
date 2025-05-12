@@ -25,7 +25,7 @@
 
         Task AddRows(IAsyncEnumerable<IExcelSheetRow> rows);
 
-        void AddVerticalColumn(string header, CellStyle? styleIndex, params string[] values);
+        void AddVerticalColumn(string header, CellStyleValue? styleIndex, params string[] values);
 
         void Close();
 

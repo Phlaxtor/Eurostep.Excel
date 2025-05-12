@@ -27,15 +27,24 @@ namespace Eurostep.Excel
         public uint SheetId { get; }
         public IRow this[uint index] => GetRowByRowIndex(index);
 
-        public IEnumerator<IRow> GetEnumerator() => new RowEnumerator(_sheetData, Context);
+        public IEnumerator<IRow> GetEnumerator()
+        {
+            return new RowEnumerator(_sheetData, Context);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => new RowEnumerator(_sheetData, Context);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new RowEnumerator(_sheetData, Context);
+        }
 
-        public ISheetReader GetReader() => new SheetReader(this, Context);
+        public ISheetReader GetReader()
+        {
+            return new SheetReader(this, Context);
+        }
 
         public IRow GetRowByRowIndex(uint rowIndex)
         {
-            foreach (var element in _sheetData)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement element in _sheetData)
             {
                 if (element is not Row row) continue;
                 if (row.RowIndex is null) continue;
@@ -52,7 +61,7 @@ namespace Eurostep.Excel
 
         protected override bool GetIsEmpty()
         {
-            using var enumerator = GetEnumerator();
+            using IEnumerator<IRow> enumerator = GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (enumerator.Current.IsEmpty == false) return false;
@@ -74,7 +83,7 @@ namespace Eurostep.Excel
         private IRow GetRowByPosition(int position)
         {
             int i = -1;
-            foreach (var element in _sheetData)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement element in _sheetData)
             {
                 if (element is not Row row) continue;
                 i++;
@@ -86,7 +95,7 @@ namespace Eurostep.Excel
 
         private SheetData GetSheetData(Worksheet worksheet)
         {
-            foreach (var element in worksheet.ChildElements)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement element in worksheet.ChildElements)
             {
                 if (element is SheetData e) return e;
             }

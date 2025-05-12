@@ -94,7 +94,7 @@ namespace Eurostep.Excel
 
         public T GetPart<T>(string id) where T : OpenXmlPart
         {
-            var part = WorkbookPart.GetPartById(id);
+            OpenXmlPart part = WorkbookPart.GetPartById(id);
             if (part is T p) return p;
             throw new ApplicationException($"There is no {typeof(T)} with id '{id}'");
         }
@@ -103,7 +103,7 @@ namespace Eurostep.Excel
         {
             if (_sharedStrings.Length <= reference) return null;
             SharedStringsLookupInit();
-            var value = _sharedStrings[reference];
+            SharedStringItem value = _sharedStrings[reference];
             return value?.InnerText;
         }
 
@@ -114,14 +114,17 @@ namespace Eurostep.Excel
             throw new ArgumentException($"Reference '{reference}' is not a valid reference", nameof(reference));
         }
 
-        public WorksheetPart GetWorksheetPart(string id) => GetPart<WorksheetPart>(id);
+        public WorksheetPart GetWorksheetPart(string id)
+        {
+            return GetPart<WorksheetPart>(id);
+        }
 
         private void CellFormatsLookupInit()
         {
             if (_cellFormatsInitialized) return;
             if (CellFormats == null) return;
             int index = 0;
-            foreach (var f in CellFormats)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement f in CellFormats)
             {
                 if (f is not CellFormat format) continue;
                 _cellFormats[index] = format;
@@ -135,7 +138,7 @@ namespace Eurostep.Excel
             if (_sharedStringsInitialized) return;
             if (SharedStringTable == null) return;
             int index = 0;
-            foreach (var i in SharedStringTable)
+            foreach (DocumentFormat.OpenXml.OpenXmlElement i in SharedStringTable)
             {
                 if (i is not SharedStringItem item) continue;
                 _sharedStrings[index] = item;

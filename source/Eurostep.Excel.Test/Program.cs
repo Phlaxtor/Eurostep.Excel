@@ -10,7 +10,7 @@
         {
             try
             {
-                var p = new Program();
+                Program p = new Program();
                 //p.CreateExcelWithHeader();
                 p.CreateExcelWithTable();
                 //p.CreateExcelWithHeaderAndTable();
@@ -48,8 +48,8 @@
 
         private void CreateExcelWithTable()
         {
-            using var file = GetFile(@"TestWithTable.xlsx");
-            using var excel = SheetWriter.GetClient(file, "Test");
+            using FileStream file = GetFile(@"TestWithTable.xlsx");
+            using ISheetWriter excel = SheetWriter.GetClient(file, "Test");
             excel.AddHeaders().New("Col 1", 40).New("Col 2", 10).Build();
             excel.AddRow().New("A").New("B").Build();
             excel.AddRow().New("C").New("D").Build();

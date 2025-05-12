@@ -25,33 +25,75 @@ namespace Eurostep.Excel
         public string Name { get; }
         public uint No { get; }
 
-        public static implicit operator ColumnId(uint c) => new ColumnId(c);
+        public static implicit operator ColumnId(uint c)
+        {
+            return new ColumnId(c);
+        }
 
-        public static implicit operator ColumnId(string c) => new ColumnId(c);
+        public static implicit operator ColumnId(string c)
+        {
+            return new ColumnId(c);
+        }
 
-        public static implicit operator string(ColumnId c) => c.Name;
+        public static implicit operator string(ColumnId c)
+        {
+            return c.Name;
+        }
 
-        public static implicit operator uint(ColumnId c) => c.No;
+        public static implicit operator uint(ColumnId c)
+        {
+            return c.No;
+        }
 
-        public static ColumnId operator -(ColumnId l, int r) => new ColumnId(l.No - 1);
+        public static ColumnId operator -(ColumnId l, int r)
+        {
+            return new ColumnId(l.No - 1);
+        }
 
-        public static ColumnId operator --(ColumnId c) => new ColumnId(c.No - 1);
+        public static ColumnId operator --(ColumnId c)
+        {
+            return new ColumnId(c.No - 1);
+        }
 
-        public static bool operator !=(ColumnId l, ColumnId r) => l.No != r.No;
+        public static bool operator !=(ColumnId l, ColumnId r)
+        {
+            return l.No != r.No;
+        }
 
-        public static ColumnId operator +(ColumnId l, int r) => new ColumnId(l.No + 1);
+        public static ColumnId operator +(ColumnId l, int r)
+        {
+            return new ColumnId(l.No + 1);
+        }
 
-        public static ColumnId operator ++(ColumnId c) => new ColumnId(c.No + 1);
+        public static ColumnId operator ++(ColumnId c)
+        {
+            return new ColumnId(c.No + 1);
+        }
 
-        public static bool operator <(ColumnId l, ColumnId r) => l.No < r.No;
+        public static bool operator <(ColumnId l, ColumnId r)
+        {
+            return l.No < r.No;
+        }
 
-        public static bool operator <=(ColumnId l, ColumnId r) => l.No <= r.No;
+        public static bool operator <=(ColumnId l, ColumnId r)
+        {
+            return l.No <= r.No;
+        }
 
-        public static bool operator ==(ColumnId l, ColumnId r) => l.No == r.No;
+        public static bool operator ==(ColumnId l, ColumnId r)
+        {
+            return l.No == r.No;
+        }
 
-        public static bool operator >(ColumnId l, ColumnId r) => l.No > r.No;
+        public static bool operator >(ColumnId l, ColumnId r)
+        {
+            return l.No > r.No;
+        }
 
-        public static bool operator >=(ColumnId l, ColumnId r) => l.No >= r.No;
+        public static bool operator >=(ColumnId l, ColumnId r)
+        {
+            return l.No >= r.No;
+        }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
@@ -60,7 +102,10 @@ namespace Eurostep.Excel
             return true;
         }
 
-        public CellRef GetCellRef(uint rowId, string? sheetId = null) => new CellRef(this, rowId, sheetId);
+        public CellRef GetCellRef(uint rowId, string? sheetId = null)
+        {
+            return new CellRef(this, rowId, sheetId);
+        }
 
         public override int GetHashCode()
         {
@@ -72,11 +117,14 @@ namespace Eurostep.Excel
             return Name;
         }
 
-        private static int GetColumnIndex(uint column) => ((int)column) - 1;
+        private static int GetColumnIndex(uint column)
+        {
+            return ((int)column) - 1;
+        }
 
         private static string GetColumnName(uint index)
         {
-            var result = string.Empty;
+            string result = string.Empty;
             int r = (int)index;
             while (r > 0)
             {
@@ -94,7 +142,7 @@ namespace Eurostep.Excel
             int position = 0;
             for (int i = column.Length - 1; i >= 0; i--)
             {
-                var index = char.ToUpper(column[i]) - 64;
+                int index = char.ToUpper(column[i]) - 64;
                 result += (uint)(Math.Pow(26, position) * index);
                 position++;
             }

@@ -122,13 +122,19 @@ public static class ExcelExtensionMethods
             Reference = text,
             TotalsRowShown = false
         };
-        AutoFilter autoFilter = new AutoFilter();
-        autoFilter.Reference = StringValue.ToString(text);
-        SortCondition sortCondition = new SortCondition();
-        sortCondition.Reference = StringValue.ToString(text2);
-        sortCondition.Descending = BooleanValue.ToBoolean(true);
-        SortState sortState = new SortState();
-        sortState.Reference = StringValue.ToString(text3);
+        AutoFilter autoFilter = new AutoFilter
+        {
+            Reference = StringValue.ToString(text)
+        };
+        SortCondition sortCondition = new SortCondition
+        {
+            Reference = StringValue.ToString(text2),
+            Descending = BooleanValue.ToBoolean(true)
+        };
+        SortState sortState = new SortState
+        {
+            Reference = StringValue.ToString(text3)
+        };
         sortState.Append(sortCondition);
         uint columnIndexFromName = ExcelUtilityMethods.GetColumnIndexFromName(columnStart);
         uint columnIndexFromName2 = ExcelUtilityMethods.GetColumnIndexFromName(columnEnd);
@@ -215,37 +221,39 @@ public static class ExcelExtensionMethods
 
     public static uint? CreateBorder(this Stylesheet self, BorderStyleValues style, HexBinaryValue argbColor)
     {
-        Border border = new Border();
-        border.TopBorder = new TopBorder
+        Border border = new Border
         {
-            Style = new EnumValue<BorderStyleValues>(style),
-            Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+            TopBorder = new TopBorder
             {
-                Rgb = argbColor
-            }
-        };
-        border.RightBorder = new RightBorder
-        {
-            Style = new EnumValue<BorderStyleValues>(style),
-            Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                Style = new EnumValue<BorderStyleValues>(style),
+                Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                {
+                    Rgb = argbColor
+                }
+            },
+            RightBorder = new RightBorder
             {
-                Rgb = argbColor
-            }
-        };
-        border.BottomBorder = new BottomBorder
-        {
-            Style = new EnumValue<BorderStyleValues>(style),
-            Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                Style = new EnumValue<BorderStyleValues>(style),
+                Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                {
+                    Rgb = argbColor
+                }
+            },
+            BottomBorder = new BottomBorder
             {
-                Rgb = argbColor
-            }
-        };
-        border.LeftBorder = new LeftBorder
-        {
-            Style = new EnumValue<BorderStyleValues>(style),
-            Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                Style = new EnumValue<BorderStyleValues>(style),
+                Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                {
+                    Rgb = argbColor
+                }
+            },
+            LeftBorder = new LeftBorder
             {
-                Rgb = argbColor
+                Style = new EnumValue<BorderStyleValues>(style),
+                Color = new DocumentFormat.OpenXml.Spreadsheet.Color
+                {
+                    Rgb = argbColor
+                }
             }
         };
         self.Borders.Append(border);
@@ -400,20 +408,26 @@ public static class ExcelExtensionMethods
             throw new ApplicationException("Stylesheet.Fills must not be null.");
         }
 
-        Fill fill = new Fill();
-        fill.PatternFill = new PatternFill();
-        fill.PatternFill.ForegroundColor = ExcelUtilityMethods.GetSpreadsheetColor<ForegroundColor>(foregroundColor);
-        fill.PatternFill.BackgroundColor = ExcelUtilityMethods.GetSpreadsheetColor<BackgroundColor>(backgroundColor);
-        fill.PatternFill.PatternType = new EnumValue<PatternValues>(patternType);
+        Fill fill = new Fill
+        {
+            PatternFill = new PatternFill
+            {
+                ForegroundColor = ExcelUtilityMethods.GetSpreadsheetColor<ForegroundColor>(foregroundColor),
+                BackgroundColor = ExcelUtilityMethods.GetSpreadsheetColor<BackgroundColor>(backgroundColor),
+                PatternType = new EnumValue<PatternValues>(patternType)
+            }
+        };
         if (gradientType.HasValue)
         {
-            fill.GradientFill = new GradientFill();
-            fill.GradientFill.Type = new EnumValue<GradientValues>(gradientType.Value);
-            fill.GradientFill.Degree = degree;
-            fill.GradientFill.Top = top;
-            fill.GradientFill.Bottom = bottom;
-            fill.GradientFill.Right = right;
-            fill.GradientFill.Left = left;
+            fill.GradientFill = new GradientFill
+            {
+                Type = new EnumValue<GradientValues>(gradientType.Value),
+                Degree = degree,
+                Top = top,
+                Bottom = bottom,
+                Right = right,
+                Left = left
+            };
         }
 
         self.Fills.Append(fill);
@@ -572,10 +586,12 @@ public static class ExcelExtensionMethods
             throw new ApplicationException("Stylesheet.Fills must not be null.");
         }
 
-        Fill fill = new Fill();
-        fill.PatternFill = new PatternFill
+        Fill fill = new Fill
         {
-            PatternType = PatternValues.Solid
+            PatternFill = new PatternFill
+            {
+                PatternType = PatternValues.Solid
+            }
         };
         ForegroundColor foregroundColor = new ForegroundColor
         {
@@ -647,9 +663,11 @@ public static class ExcelExtensionMethods
             }
         }
 
-        Cell cell = new Cell();
-        cell.CellReference = StringValue.ToString(cellReference);
-        cell.DataType = new EnumValue<CellValues>(dataType);
+        Cell cell = new Cell
+        {
+            CellReference = StringValue.ToString(cellReference),
+            DataType = new EnumValue<CellValues>(dataType)
+        };
         if (styleIndex.HasValue)
         {
             cell.StyleIndex = styleIndex.Value;
@@ -712,7 +730,7 @@ public static class ExcelExtensionMethods
                                                      select c into r
                                                      orderby r.GetRowIndex()
                                                      select r;
-        Dictionary<uint, string> dictionary = new Dictionary<uint, string>();
+        Dictionary<uint, string> dictionary = [];
         foreach (Cell item in orderedEnumerable)
         {
             dictionary[item.GetRowIndex()] = self.OpenXmlPackage.GetCellValue(item);
@@ -827,8 +845,8 @@ public static class ExcelExtensionMethods
     {
         string columnStart2 = columnStart;
         string columnEnd2 = columnEnd;
-        Dictionary<string, Dictionary<uint, string>> dictionary = new Dictionary<string, Dictionary<uint, string>>();
-        Dictionary<uint, string> dictionary2 = new Dictionary<uint, string>();
+        Dictionary<string, Dictionary<uint, string>> dictionary = [];
+        Dictionary<uint, string> dictionary2 = [];
         IOrderedEnumerable<Cell> orderedEnumerable = (from c in self.Worksheet.Descendants<Cell>()
                                                       where c.CellValue != null && c.CompareColumn(columnStart2) >= 0 && c.CompareColumn(columnEnd2) <= 0 && c.GetRowIndex() >= rowStart && c.GetRowIndex() <= rowEnd
                                                       select c into r
@@ -840,7 +858,7 @@ public static class ExcelExtensionMethods
             string columnName = item.GetColumnName();
             if (!text.Equals(columnName))
             {
-                dictionary2 = (dictionary[columnName] = new Dictionary<uint, string>());
+                dictionary2 = (dictionary[columnName] = []);
                 text = columnName;
             }
 
@@ -1002,7 +1020,7 @@ public static class ExcelExtensionMethods
     {
         string columnStart2 = columnStart;
         string columnEnd2 = columnEnd;
-        Dictionary<uint, Dictionary<string, string>> dictionary = new Dictionary<uint, Dictionary<string, string>>();
+        Dictionary<uint, Dictionary<string, string>> dictionary = [];
         new Dictionary<string, string>();
         foreach (Cell item in (from c in self.Worksheet.Descendants<Cell>()
                                where c.CellValue != null && c.CompareColumn(columnStart2) >= 0 && c.CompareColumn(columnEnd2) <= 0 && c.GetRowIndex() >= rowStart && c.GetRowIndex() <= rowEnd
@@ -1013,9 +1031,9 @@ public static class ExcelExtensionMethods
             string columnName = item.GetColumnName();
             uint rowIndex = item.GetRowIndex();
             string cellValue = self.OpenXmlPackage.GetCellValue(item);
-            if (!dictionary.TryGetValue(rowIndex, out var value))
+            if (!dictionary.TryGetValue(rowIndex, out Dictionary<string, string>? value))
             {
-                value = (dictionary[rowIndex] = new Dictionary<string, string>());
+                value = (dictionary[rowIndex] = []);
             }
 
             value[columnName] = cellValue;
@@ -1287,33 +1305,39 @@ public static class ExcelExtensionMethods
         if (pageSetup == null)
         {
             SpreadsheetDocument spreadsheetDocument = self.OpenXmlPackage.GetSpreadsheetDocument();
-            pageSetup = new PageSetup();
-            pageSetup.Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(self);
-            pageSetup.VerticalDpi = 0u;
-            pageSetup.Orientation = OrientationValues.Default;
+            pageSetup = new PageSetup
+            {
+                Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(self),
+                VerticalDpi = 0u,
+                Orientation = OrientationValues.Default
+            };
             self.Worksheet.InsertAfter(pageSetup, firstChild);
         }
 
         PageMargins pageMargins = self.Worksheet.GetFirstChild<PageMargins>();
         if (pageMargins == null)
         {
-            pageMargins = new PageMargins();
-            pageMargins.Left = 0.7;
-            pageMargins.Right = 0.7;
-            pageMargins.Top = 0.75;
-            pageMargins.Bottom = 0.75;
-            pageMargins.Header = 0.3;
-            pageMargins.Footer = 0.3;
+            pageMargins = new PageMargins
+            {
+                Left = 0.7,
+                Right = 0.7,
+                Top = 0.75,
+                Bottom = 0.75,
+                Header = 0.3,
+                Footer = 0.3
+            };
             self.Worksheet.InsertBefore(pageMargins, pageSetup);
         }
 
         SheetProtection firstChild2 = self.Worksheet.GetFirstChild<SheetProtection>();
         if (firstChild2 == null)
         {
-            firstChild2 = new SheetProtection();
-            firstChild2.Sheet = protectSheet;
-            firstChild2.Objects = protectObjects;
-            firstChild2.Scenarios = protectScenarios;
+            firstChild2 = new SheetProtection
+            {
+                Sheet = protectSheet,
+                Objects = protectObjects,
+                Scenarios = protectScenarios
+            };
             self.Worksheet.InsertBefore(firstChild2, pageMargins);
         }
     }
@@ -1446,7 +1470,7 @@ public static class ExcelExtensionMethods
 
     private static List<Type> GetPossiblePredecessors(OpenXmlElement child, Type[] sequence)
     {
-        List<Type> possiblePredecessors = new List<Type>();
+        List<Type> possiblePredecessors = [];
         for (int i = 0; i < sequence.Length; i++)
         {
             if (child.GetType().Name == sequence[i].Name)
@@ -1460,7 +1484,7 @@ public static class ExcelExtensionMethods
 
     private static List<Type> GetPossibleSuccessors(OpenXmlElement child, Type[] sequence)
     {
-        List<Type> possibleSuccessors = new List<Type>();
+        List<Type> possibleSuccessors = [];
         for (int i = sequence.Length - 1; i > 0; i--)
         {
             if (child.GetType().Name == sequence[i].Name)
@@ -1476,7 +1500,7 @@ public static class ExcelExtensionMethods
     {
         List<Type> possiblePredecessors = GetPossiblePredecessors(child, sequence); new List<Type>();
 
-        foreach (var element in self.ChildElements.Reverse())
+        foreach (OpenXmlElement? element in self.ChildElements.Reverse())
         {
             if (possiblePredecessors.Contains(element.GetType()))
             {
@@ -1491,7 +1515,7 @@ public static class ExcelExtensionMethods
     {
         List<Type> possiblePredecessors = GetPossibleSuccessors(child, sequence); new List<Type>();
 
-        foreach (var element in self.ChildElements)
+        foreach (OpenXmlElement element in self.ChildElements)
         {
             if (possiblePredecessors.Contains(element.GetType()))
             {
@@ -1555,7 +1579,7 @@ public static class ExcelUtilityMethods
                 .ToArray();
             for (int i = 0; i < columnName.Length; i++)
             {
-                num += System.Math.Pow(array.Length, i) * (double)(Array.IndexOf(array, array2[i]) + 1);
+                num += System.Math.Pow(array.Length, i) * (Array.IndexOf(array, array2[i]) + 1);
             }
         }
 
@@ -1704,7 +1728,7 @@ public static class ExtensionMethods
     {
         if (enumerable == null)
         {
-            return new List<TSource>(0);
+            return [];
         }
 
         return enumerable;
@@ -1717,17 +1741,17 @@ public static class ExtensionMethods
 
     public static bool? GetBoolean(this string self)
     {
-        if (self.IsBoolean() && bool.TryParse(self, out var result))
+        if (self.IsBoolean() && bool.TryParse(self, out bool result))
         {
             return result;
         }
 
-        if (self.IsByte() && byte.TryParse(self, out var result2))
+        if (self.IsByte() && byte.TryParse(self, out byte result2))
         {
             return Convert.ToBoolean(result2);
         }
 
-        if (self.IsDouble() && double.TryParse(self, out var result3))
+        if (self.IsDouble() && double.TryParse(self, out double result3))
         {
             return Convert.ToBoolean(result3);
         }
@@ -1737,17 +1761,17 @@ public static class ExtensionMethods
 
     public static DateTime? GetDateTime(this string self)
     {
-        if (self.IsDateTime() && DateTime.TryParse(self, out var result))
+        if (self.IsDateTime() && DateTime.TryParse(self, out DateTime result))
         {
             return result;
         }
 
-        if (self.IsDouble() && double.TryParse(self, out var result2))
+        if (self.IsDouble() && double.TryParse(self, out double result2))
         {
             return DateTime.FromOADate(result2);
         }
 
-        if (self.IsLong() && long.TryParse(self, out var result3))
+        if (self.IsLong() && long.TryParse(self, out long result3))
         {
             return DateTime.FromOADate(result3);
         }
@@ -1757,7 +1781,7 @@ public static class ExtensionMethods
 
     public static bool IsBoolean(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && bool.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && bool.TryParse(self, out bool _))
         {
             return true;
         }
@@ -1767,7 +1791,7 @@ public static class ExtensionMethods
 
     public static bool IsByte(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && byte.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && byte.TryParse(self, out byte _))
         {
             return true;
         }
@@ -1777,7 +1801,7 @@ public static class ExtensionMethods
 
     public static bool IsDateTime(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && DateTime.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && DateTime.TryParse(self, out DateTime _))
         {
             return true;
         }
@@ -1787,7 +1811,7 @@ public static class ExtensionMethods
 
     public static bool IsDouble(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && double.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && double.TryParse(self, out double _))
         {
             return true;
         }
@@ -1797,7 +1821,7 @@ public static class ExtensionMethods
 
     public static bool IsInteger(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && int.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && int.TryParse(self, out int _))
         {
             return true;
         }
@@ -1807,7 +1831,7 @@ public static class ExtensionMethods
 
     public static bool IsLong(this string self)
     {
-        if (!string.IsNullOrWhiteSpace(self) && long.TryParse(self, out var _))
+        if (!string.IsNullOrWhiteSpace(self) && long.TryParse(self, out long _))
         {
             return true;
         }
@@ -1851,7 +1875,7 @@ public static class ExtensionMethods
         StringBuilder stringBuilder = new StringBuilder();
         if (self != null && self.Count() > 0)
         {
-            List<string> list = new List<string>();
+            List<string> list = [];
             foreach (string item in self)
             {
                 list.Add(item.Trim().Trim(separator));
@@ -1869,7 +1893,7 @@ public static class ExtensionMethods
 
     public static IEnumerable<string> SplitAndTrim(this string self, char separator = ',')
     {
-        List<string> list = new List<string>();
+        List<string> list = [];
         if (!string.IsNullOrWhiteSpace(self))
         {
             string[] array = self.Split(separator);

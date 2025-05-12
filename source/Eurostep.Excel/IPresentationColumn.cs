@@ -2,9 +2,9 @@
 {
     public interface IPresentationColumn
     {
-        CellStyle? ColumnStyle { get; }
+        CellStyleValue? ColumnStyle { get; }
         string DisplayName { get; }
-        CellStyle? HeaderStyle { get; }
+        CellStyleValue? HeaderStyle { get; }
         int Width { get; }
     }
 }

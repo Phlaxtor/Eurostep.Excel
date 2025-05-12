@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Eurostep.Excel
 {
@@ -37,7 +35,7 @@ namespace Eurostep.Excel
 
         protected string GetColumnName(uint index)
         {
-            var result = string.Empty;
+            string result = string.Empty;
             int r = (int)index;
             while (r > 0)
             {
@@ -55,7 +53,7 @@ namespace Eurostep.Excel
             int position = 0;
             for (int i = column.Length - 1; i >= 0; i--)
             {
-                var index = char.ToUpper(column[i]) - 64;
+                int index = char.ToUpper(column[i]) - 64;
                 result += (uint)(Math.Pow(26, position) * index);
                 position++;
             }
@@ -68,8 +66,8 @@ namespace Eurostep.Excel
 
         protected (string Column, uint Row) ParseReference(string reference)
         {
-            var regex = new Regex("(?<Column>[a-zA-Z]*)(?<Row>[0-9]*)");
-            var match = regex.Match(reference);
+            Regex regex = new Regex("(?<Column>[a-zA-Z]*)(?<Row>[0-9]*)");
+            Match match = regex.Match(reference);
             return (match.Groups["Column"].Value, uint.Parse(match.Groups["Row"].Value));
         }
 

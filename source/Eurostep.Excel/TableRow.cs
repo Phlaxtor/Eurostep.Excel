@@ -48,9 +48,15 @@ namespace Eurostep.Excel
             return value.GetDateTime();
         }
 
-        public IEnumerator<ICell> GetEnumerator() => _row.GetEnumerator();
+        public IEnumerator<ICell> GetEnumerator()
+        {
+            return _row.GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => _row.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _row.GetEnumerator();
+        }
 
         public double? GetNumber(string header)
         {
@@ -66,17 +72,23 @@ namespace Eurostep.Excel
             return value.GetText();
         }
 
-        protected override int GetIndex() => _row.Index;
+        protected override int GetIndex()
+        {
+            return _row.Index;
+        }
 
-        protected override bool GetIsEmpty() => _row.IsEmpty;
+        protected override bool GetIsEmpty()
+        {
+            return _row.IsEmpty;
+        }
 
         private void SetValues()
         {
             if (_hasValues) return;
-            using var enumerator = GetEnumerator();
+            using IEnumerator<ICell> enumerator = GetEnumerator();
             while (enumerator.MoveNext())
             {
-                var c = enumerator.Current;
+                ICell c = enumerator.Current;
                 _values[c.Index] = c;
             }
             _hasValues = true;

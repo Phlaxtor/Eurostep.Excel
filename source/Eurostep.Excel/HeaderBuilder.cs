@@ -4,7 +4,7 @@
     {
         private readonly ExcelWriter _excel;
         private readonly string _sheetName;
-        private readonly List<IPresentationColumn> _headers = new List<IPresentationColumn>();
+        private readonly List<IPresentationColumn> _headers = [];
 
         internal HeaderBuilder(ExcelWriter excel, string sheetName)
         {
@@ -18,7 +18,7 @@
             _excel.AddHeaders(_headers.ToArray());
         }
 
-        public HeaderBuilder New(string displayName, int width, CellStyle? styleIndex = default, CellStyle? columnStyle = default)
+        public HeaderBuilder New(string displayName, int width, CellStyleValue? styleIndex = default, CellStyleValue? columnStyle = default)
         {
             _headers.Add(new DefaultPresentationColumn(displayName, width, styleIndex, columnStyle));
             return this;

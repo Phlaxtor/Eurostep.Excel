@@ -7,13 +7,12 @@ namespace Eurostep.Excel
         private readonly ExcelWriter _excel;
         private readonly string _name;
         private Alignment? _alignment;
-        private uint? _border;
-        private uint? _cellFormat;
-        private uint? _fill;
-        private uint? _font;
-        private uint? _formatId;
-        private uint? _numberFormatId;
-        private uint? _numberingFormat;
+        private BorderStyleValue? _border;
+        private CellStyleValue? _cellFormat;
+        private FillStyleValue? _fill;
+        private FontStyleValue? _font;
+        private readonly uint? _formatId;
+        private NumberingFormatStyleValue? _numberingFormat;
         private bool? _pivotButton;
         private Protection? _protection;
         private bool? _quotePrefix;
@@ -30,39 +29,68 @@ namespace Eurostep.Excel
         public bool HasFill => _fill.HasValue;
         public bool HasFont => _font.HasValue;
         public bool HasFormatId => _formatId.HasValue;
-        public bool HasNumberingFormat => _numberFormatId.HasValue;
+        public bool HasNumberingFormat => _numberingFormat.HasValue;
         public bool HasPivotButton => _pivotButton.HasValue;
         public bool HasProtection => _protection != null;
         public bool HasQuotePrefix => _quotePrefix.HasValue;
         public string Name => _name;
 
-        public CellStyle Build()
+        public CellStyleValue Build()
         {
             if (_cellFormat.HasValue) throw new ApplicationException($"Cell format style has alread been set");
-            var value = _excel.NewCellStyle(_name, _numberFormatId, _numberingFormat, _formatId, _alignment, _font, _border, _fill, _protection, _pivotButton, _quotePrefix);
-            _cellFormat = value.Value;
-            return value;
+            _cellFormat = _excel.NewCellStyle(_name, _numberingFormat, _formatId, _alignment, _font, _border, _fill, _protection, _pivotButton, _quotePrefix);
+            return _cellFormat.Value;
         }
 
-        public Alignment? GetAlignment() => _alignment;
+        public Alignment? GetAlignment()
+        {
+            return _alignment;
+        }
 
-        public uint? GetBorder() => _border;
+        public BorderStyleValue? GetBorder()
+        {
+            return _border;
+        }
 
-        public uint? GetCellFormat() => _cellFormat;
+        public CellStyleValue? GetCellFormat()
+        {
+            return _cellFormat;
+        }
 
-        public uint? GetFill() => _fill;
+        public FillStyleValue? GetFill()
+        {
+            return _fill;
+        }
 
-        public uint? GetFont() => _font;
+        public FontStyleValue? GetFont()
+        {
+            return _font;
+        }
 
-        public uint? GetFormatId() => _formatId;
+        public uint? GetFormatId()
+        {
+            return _formatId;
+        }
 
-        public uint? GetNumberingFormat() => _numberFormatId;
+        public NumberingFormatStyleValue? GetNumberingFormat()
+        {
+            return _numberingFormat;
+        }
 
-        public bool? GetPivotButton() => _pivotButton;
+        public bool? GetPivotButton()
+        {
+            return _pivotButton;
+        }
 
-        public Protection? GetProtection() => _protection;
+        public Protection? GetProtection()
+        {
+            return _protection;
+        }
 
-        public bool? GetQuotePrefix() => _quotePrefix;
+        public bool? GetQuotePrefix()
+        {
+            return _quotePrefix;
+        }
 
         public CellStyleBuilder SetAlignment(HorizontalAlignmentValues horizontal, VerticalAlignmentValues vertical, uint indent = 0, int relativeIndent = 0, bool shrinkToFit = false, bool wrapText = false, uint textRotation = 0, string? mergeCell = null, uint readingOrder = 0, bool justifyLastLine = false)
         {
@@ -94,8 +122,7 @@ namespace Eurostep.Excel
 
         public CellStyleBuilder SetNumberingFormat(uint? numberFormatId, string? formatCode)
         {
-            if (_numberFormatId.HasValue) throw new ApplicationException($"Numbering format style has alread been set");
-            _numberFormatId = numberFormatId;
+            if (_numberingFormat.HasValue) throw new ApplicationException($"Numbering format style has alread been set");
             _numberingFormat = _excel.CreateNumberingFormat(numberFormatId, formatCode);
             return this;
         }

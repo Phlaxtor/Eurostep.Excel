@@ -4,7 +4,7 @@ namespace Eurostep.Excel
 {
     public sealed class DefaultCellValue : ICellValue
     {
-        public DefaultCellValue(string? value, CellStyle? style = default, CellValues dataType = CellValues.String)
+        public DefaultCellValue(string? value, CellStyleValue? style = default, CellValues dataType = CellValues.String)
         {
             Value = value;
             Style = style;
@@ -12,7 +12,7 @@ namespace Eurostep.Excel
         }
 
         public CellValues DataType { get; }
-        public CellStyle? Style { get; }
+        public CellStyleValue? Style { get; }
         public string? Value { get; }
 
         public static ICellValue[] Get(params string?[] values)

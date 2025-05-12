@@ -6,7 +6,7 @@
 
         public ExcelWriterData(string name, uint sheetNo, ColumnId columnStart, uint rowStart)
         {
-            var sheetName = GetSheetName(name);
+            string sheetName = GetSheetName(name);
             ColumnStart = columnStart;
             Name = name;
             RowEnd = rowStart - 1;
@@ -35,7 +35,10 @@
             return TableEnd;
         }
 
-        public CellArea GetArea() => new CellArea(ColumnStart, RowStart, ColumnEnd, RowEnd);
+        public CellArea GetArea()
+        {
+            return new CellArea(ColumnStart, RowStart, ColumnEnd, RowEnd);
+        }
 
         public CellRef GetCurrentCell(uint columnOffset = 0)
         {
@@ -43,9 +46,15 @@
             return new CellRef(ColumnStart + columnOffset, RowEnd, SheetName);
         }
 
-        public CellRef GetEnd() => new CellRef(ColumnEnd, RowEnd, SheetName);
+        public CellRef GetEnd()
+        {
+            return new CellRef(ColumnEnd, RowEnd, SheetName);
+        }
 
-        public CellArea GetTableArea() => new CellArea(ColumnStart, TableStart, ColumnEnd, TableEnd);
+        public CellArea GetTableArea()
+        {
+            return new CellArea(ColumnStart, TableStart, ColumnEnd, TableEnd);
+        }
 
         public uint IncreaseRowNo()
         {

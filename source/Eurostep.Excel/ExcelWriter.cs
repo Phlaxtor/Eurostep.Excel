@@ -6,8 +6,13 @@ namespace Eurostep.Excel
 {
     public sealed class ExcelWriter : IDisposable
     {
-        private readonly Dictionary<string, ExcelWriterData> _reportCache = new Dictionary<string, ExcelWriterData>();
-        private readonly Dictionary<string, CellStyle> _styleCache = new Dictionary<string, CellStyle>();
+        private readonly BorderStyleCache _borderStyleCache;
+        private readonly CellStyleCache _cellStyleCache;
+        private readonly FillStyleCache _fillStyleCache;
+        private readonly FontStyleCache _fontStyleCache;
+        private readonly NumberingFormatStyleCache _numberFormatStyleCache;
+        private readonly Dictionary<string, ExcelWriterData> _reportCache = [];
+        private readonly Dictionary<string, CellStyleValue> _styleCache = [];
         private readonly Stylesheet? _stylesheet;
         private readonly WorkbookPart? _workbookPart;
         private ExcelWriterData? _currentData;
@@ -25,18 +30,23 @@ namespace Eurostep.Excel
             _stylesheet = GetStylesheet();
             _sheetCount = GetLastSheetId();
             _tableCount = 0;
+            _borderStyleCache = new BorderStyleCache(this);
+            _cellStyleCache = new CellStyleCache(this);
+            _fillStyleCache = new FillStyleCache(this);
+            _fontStyleCache = new FontStyleCache(this);
+            _numberFormatStyleCache = new NumberingFormatStyleCache(this);
         }
 
+        internal BorderStyleCache BorderStyles => _borderStyleCache;
+        internal CellStyleCache CellStyles => _cellStyleCache;
         internal ExcelWriterData CurrentData => _currentData ?? throw new ApplicationException();
-
         internal WorksheetPart CurrentSheet => _currentSheet ?? throw new ApplicationException();
-
         internal SheetData CurrentSheetData => _currentSheetData ?? throw new ApplicationException();
-
+        internal FillStyleCache FillStyles => _fillStyleCache;
+        internal FontStyleCache FontStyles => _fontStyleCache;
+        internal NumberingFormatStyleCache NumberingFormats => _numberFormatStyleCache;
         internal SpreadsheetDocument Spreasheet => _spreasheet ?? throw new ApplicationException();
-
         internal Stylesheet Stylesheet => _stylesheet ?? throw new ApplicationException();
-
         internal WorkbookPart WorkbookPart => _workbookPart ?? throw new ApplicationException();
 
         public void AddDataValidationCustom(ColumnRange validationRange, string formula, string? errorText = null, string? errorTitle = null)
@@ -60,7 +70,7 @@ namespace Eurostep.Excel
             validation.Type = DataValidationValues.List;
             validation.AllowBlank = new BooleanValue(true);
             AddValidationError(validation, errorText, errorTitle);
-            var formula = new Formula1 { Text = formulaForList };
+            Formula1 formula = new Formula1 { Text = formulaForList };
             validation.Append(formula);
         }
 
@@ -70,9 +80,9 @@ namespace Eurostep.Excel
             validation.Type = DataValidationValues.Whole;
             validation.AllowBlank = new BooleanValue(true);
             AddValidationError(validation, errorText, errorTitle);
-            var formula1 = new Formula1 { Text = min.ToString(), };
+            Formula1 formula1 = new Formula1 { Text = min.ToString(), };
             validation.Append(formula1);
-            var formula2 = new Formula2 { Text = max.ToString() };
+            Formula2 formula2 = new Formula2 { Text = max.ToString() };
             validation.Append(formula2);
         }
 
@@ -88,14 +98,14 @@ namespace Eurostep.Excel
             CurrentData.IncreaseRowNo();
             CurrentData.SetHeaders(headers);
             CurrentData.StartTable(_tableCount);
-            var startCell = CurrentData.GetCurrentCell();
+            CellRef startCell = CurrentData.GetCurrentCell();
             NewColumnsData(startCell, headers);
             Spreasheet.Save();
         }
 
         public void AddMandatoryCellCheck(ColumnRange range, string condition, GeneralColor color)
         {
-            var previous = CurrentSheet.Worksheet.ChildElements.OfType<ConditionalFormatting>();
+            IEnumerable<ConditionalFormatting> previous = CurrentSheet.Worksheet.ChildElements.OfType<ConditionalFormatting>();
             int count = previous.Count();
             int priority = count + 1;
             uint dxfId = CreateDifferentialColorFillFormat(bgColor: color);
@@ -110,7 +120,7 @@ namespace Eurostep.Excel
         public uint AddNewRow(params ICellValue[] values)
         {
             CurrentData.IncreaseRowNo();
-            var startCell = CurrentData.GetCurrentCell();
+            CellRef startCell = CurrentData.GetCurrentCell();
             WriteNewRowValues(startCell, values);
             return CurrentData.RowEnd;
         }
@@ -122,7 +132,7 @@ namespace Eurostep.Excel
             if (headers.Length > 0) AddHeaders(headers);
         }
 
-        public uint AddVerticalColumn(string header, CellStyle? style, params string?[] values)
+        public uint AddVerticalColumn(string header, CellStyleValue? style, params string?[] values)
         {
             CurrentData.IncreaseRowNo();
             ICellValue[] cells = new ICellValue[values.Length + 1];
@@ -131,7 +141,7 @@ namespace Eurostep.Excel
             {
                 cells[i + 1] = new DefaultCellValue(values[i]);
             }
-            var startCell = CurrentData.GetCurrentCell();
+            CellRef startCell = CurrentData.GetCurrentCell();
             WriteNewRowValues(startCell, cells);
             return CurrentData.RowEnd;
         }
@@ -179,58 +189,132 @@ namespace Eurostep.Excel
             _currentSheetData = _currentSheet.Worksheet.GetFirstChild<SheetData>();
         }
 
-        internal uint CreateBorder(BorderPart? top = null, BorderPart? right = null, BorderPart? bottom = null, BorderPart? left = null)
+        internal uint AddBorder(Border value)
         {
-            if (Stylesheet.Borders == null) Stylesheet.Borders = new Borders();
-            var border = new Border();
-            if (top.HasValue) border.TopBorder = top.Value.ToBorder<TopBorder>();
-            if (right.HasValue) border.RightBorder = right.Value.ToBorder<RightBorder>();
-            if (bottom.HasValue) border.BottomBorder = bottom.Value.ToBorder<BottomBorder>();
-            if (left.HasValue) border.LeftBorder = left.Value.ToBorder<LeftBorder>();
+            if (Stylesheet.Borders == null)
+            {
+                Stylesheet.Borders = new Borders();
+            }
+
             uint count = Stylesheet.Borders.Count ?? 0;
-            Stylesheet.Borders.Append(border);
+            Stylesheet.Borders.Append(value);
             count++;
             Stylesheet.Borders.Count = count;
             Stylesheet.Save();
             return count;
         }
 
+        internal uint AddCellFormat(CellFormat value)
+        {
+            if (Stylesheet.CellFormats == null)
+            {
+                Stylesheet.CellFormats = new CellFormats();
+            }
+
+            uint count = Stylesheet.CellFormats.Count ?? 0;
+            Stylesheet.CellFormats.Append(value);
+            count++;
+            Stylesheet.CellFormats.Count = count;
+            Stylesheet.Save();
+            return count;
+        }
+
+        internal uint AddFill(Fill value)
+        {
+            if (Stylesheet.Fills == null)
+            {
+                Stylesheet.Fills = new Fills();
+            }
+
+            uint count = Stylesheet.Fills.Count ?? 0;
+            Stylesheet.Fills.Append(value);
+            count++;
+            Stylesheet.Fills.Count = count;
+            Stylesheet.Save();
+            return count;
+        }
+
+        internal uint AddFont(Font value)
+        {
+            if (Stylesheet.Fonts == null)
+            {
+                Stylesheet.Fonts = new Fonts();
+            }
+
+            uint count = Stylesheet.Fonts.Count ?? 0;
+            Stylesheet.Fonts.Append(value);
+            count++;
+            Stylesheet.Fonts.Count = count;
+            Stylesheet.Save();
+            return count;
+        }
+
+        internal uint AddNumberingFormat(NumberingFormat value)
+        {
+            if (Stylesheet.NumberingFormats == null)
+            {
+                Stylesheet.NumberingFormats = new NumberingFormats();
+            }
+
+            uint count = Stylesheet.NumberingFormats.Count ?? 0;
+            Stylesheet.NumberingFormats.Append(value);
+            count++;
+            Stylesheet.NumberingFormats.Count = count;
+            Stylesheet.Save();
+            return count;
+        }
+
+        internal BorderStyleValue CreateBorder(IBorderStyle value)
+        {
+            return CreateBorder(value.TopBorder, value.RightBorder, value.BottomBorder, value.LeftBorder);
+        }
+
+        internal BorderStyleValue CreateBorder(BorderPart? top = null, BorderPart? right = null, BorderPart? bottom = null, BorderPart? left = null)
+        {
+            Border value = new Border();
+            if (top.HasValue) value.TopBorder = top.Value.ToBorder<TopBorder>();
+            if (right.HasValue) value.RightBorder = right.Value.ToBorder<RightBorder>();
+            if (bottom.HasValue) value.BottomBorder = bottom.Value.ToBorder<BottomBorder>();
+            if (left.HasValue) value.LeftBorder = left.Value.ToBorder<LeftBorder>();
+            uint result = AddBorder(value);
+            return new BorderStyleValue(result, top, right, bottom, left);
+        }
+
         internal uint CreateCellFormat(uint? numFmtId = null, uint? xfId = null, Alignment? alignment = null, uint? fontId = null, uint? borderId = null, uint? fillId = null, Protection? protection = null, bool? pivotButton = null, bool? quotePrefix = null)
         {
-            if (Stylesheet.CellFormats == null) Stylesheet.CellFormats = new CellFormats();
-            var format = new CellFormat();
-            if (pivotButton.HasValue) format.PivotButton = pivotButton.Value;
-            if (quotePrefix.HasValue) format.QuotePrefix = quotePrefix.Value;
-            if (xfId.HasValue) format.FormatId = xfId;
+            CellFormat value = new CellFormat();
+            if (pivotButton.HasValue) value.PivotButton = pivotButton.Value;
+            if (quotePrefix.HasValue) value.QuotePrefix = quotePrefix.Value;
+            if (xfId.HasValue) value.FormatId = xfId;
             if (protection != null)
             {
-                format.Protection = protection;
-                format.ApplyProtection = true;
+                value.Protection = protection;
+                value.ApplyProtection = true;
             }
             if (alignment != null)
             {
-                format.Alignment = alignment;
-                format.ApplyAlignment = true;
+                value.Alignment = alignment;
+                value.ApplyAlignment = true;
             }
             if (borderId.HasValue)
             {
-                format.BorderId = borderId.Value;
-                format.ApplyBorder = true;
+                value.BorderId = borderId.Value;
+                value.ApplyBorder = true;
             }
             if (fontId.HasValue)
             {
-                format.FontId = fontId.Value;
-                format.ApplyFont = true;
+                value.FontId = fontId.Value;
+                value.ApplyFont = true;
             }
             if (fillId.HasValue)
             {
-                format.FillId = fillId.Value;
-                format.ApplyFill = true;
+                value.FillId = fillId.Value;
+                value.ApplyFill = true;
             }
             if (numFmtId.HasValue)
             {
-                format.NumberFormatId = numFmtId.Value;
-                format.ApplyNumberFormat = true;
+                value.NumberFormatId = numFmtId.Value;
+                value.ApplyNumberFormat = true;
 
                 //0 General
                 //1 0
@@ -261,105 +345,113 @@ namespace Eurostep.Excel
                 //48 ##0.0E+0
                 //49 @
             }
-            uint count = Stylesheet.CellFormats.Count ?? 0;
-            Stylesheet.CellFormats.Append(format);
-            count++;
-            Stylesheet.CellFormats.Count = count;
-            Stylesheet.Save();
-            return count;
+            uint result = AddCellFormat(value);
+            return result;
         }
 
-        internal uint CreateFill(PatternValues? patternType = null, GeneralColor? fgColor = null, GeneralColor? bgColor = null, GradientValues? gradientType = null, double degree = 0, double top = 0, double bottom = 0, double right = 0, double left = 0)
+        internal FillStyleValue CreateFill(IFillStyle value)
         {
-            if (Stylesheet.Fills == null) Stylesheet.Fills = new Fills();
-            var fill = new Fill();
-            fill.PatternFill = new PatternFill();
-            if (fgColor.HasValue) fill.PatternFill.ForegroundColor = fgColor.Value.ToSpreadsheetColor<ForegroundColor>();
-            if (bgColor.HasValue) fill.PatternFill.BackgroundColor = bgColor.Value.ToSpreadsheetColor<BackgroundColor>();
-            fill.PatternFill.PatternType = patternType;
+            return CreateFill(value.PatternType, value.ForegroundColor, value.BackgroundColor, value.GradientType, value.GradientDegree, value.GradientTop, value.GradientBottom, value.GradientRight, value.GradientLeft);
+        }
+
+        internal FillStyleValue CreateFill(PatternValues? patternType = null, GeneralColor? fgColor = null, GeneralColor? bgColor = null, GradientValues? gradientType = null, double degree = 0, double top = 0, double bottom = 0, double right = 0, double left = 0)
+        {
+            Fill value = new Fill
+            {
+                PatternFill = new PatternFill()
+            };
+            if (fgColor.HasValue) value.PatternFill.ForegroundColor = fgColor.Value.ToSpreadsheetColor<ForegroundColor>();
+            if (bgColor.HasValue) value.PatternFill.BackgroundColor = bgColor.Value.ToSpreadsheetColor<BackgroundColor>();
+            value.PatternFill.PatternType = patternType;
             if (gradientType.HasValue)
             {
-                fill.GradientFill = new GradientFill();
-                fill.GradientFill.Type = gradientType.Value;
-                fill.GradientFill.Degree = degree;
-                fill.GradientFill.Top = top;
-                fill.GradientFill.Bottom = bottom;
-                fill.GradientFill.Right = right;
-                fill.GradientFill.Left = left;
+                value.GradientFill = new GradientFill
+                {
+                    Type = gradientType.Value,
+                    Degree = degree,
+                    Top = top,
+                    Bottom = bottom,
+                    Right = right,
+                    Left = left
+                };
             }
-            uint count = Stylesheet.Fills.Count ?? 0;
-            Stylesheet.Fills.Append(fill);
-            count++;
-            Stylesheet.Fills.Count = count;
-            Stylesheet.Save();
-            return count;
+            uint result = AddFill(value);
+            return new FillStyleValue(result, patternType, fgColor, bgColor, gradientType, degree, top, bottom, right, left);
         }
 
-        internal uint CreateFont(string? name = "Calibri", double? sz = 11, bool? b = null, bool? i = null, UnderlineValues? u = null, GeneralColor? color = null, VerticalAlignmentRunValues? vertAlig = null, bool? strike = null, bool? condense = null, bool? extend = null, bool? shadow = null)
+        internal FontStyleValue CreateFont(IFontStyle value)
         {
-            if (Stylesheet.Fonts == null) Stylesheet.Fonts = new Fonts();
-            var font = new Font();
-            if (string.IsNullOrEmpty(name) == false) font.FontName = new FontName { Val = name };
-            if (sz.HasValue) font.FontSize = new FontSize { Val = sz.Value };
-            if (b.HasValue) font.Bold = new Bold { Val = b.Value };
-            if (i.HasValue) font.Italic = new Italic { Val = i.Value };
-            if (u.HasValue) font.Underline = new Underline { Val = u.Value };
-            if (strike.HasValue) font.Strike = new Strike { Val = strike.Value };
-            if (condense.HasValue) font.Condense = new Condense { Val = condense.Value };
-            if (extend.HasValue) font.Extend = new Extend { Val = extend.Value };
-            if (shadow.HasValue) font.Shadow = new Shadow { Val = shadow.Value };
-            if (vertAlig.HasValue) font.VerticalTextAlignment = new VerticalTextAlignment { Val = vertAlig.Value };
-            if (color.HasValue) font.Color = color.Value.ToSpreadsheetColor<Color>();
-            uint count = Stylesheet.Fonts.Count ?? 0;
-            Stylesheet.Fonts.Append(font);
-            count++;
-            Stylesheet.Fonts.Count = count;
-            Stylesheet.Save();
-            return count;
+            return CreateFont(value.Name, value.Size, value.Bold, value.Italic, value.Underline, value.Color, value.VerticalTextAlignment, value.Strike, value.Condense, value.Extend, value.Shadow);
         }
 
-        internal uint CreateNumberingFormat(uint? numFmtId = 0, string? formatCode = null)
+        internal FontStyleValue CreateFont(string? name = "Calibri", double? sz = 11, bool? b = null, bool? i = null, UnderlineValues? u = null, GeneralColor? color = null, VerticalAlignmentRunValues? vertAlig = null, bool? strike = null, bool? condense = null, bool? extend = null, bool? shadow = null)
         {
-            if (Stylesheet.NumberingFormats == null) Stylesheet.NumberingFormats = new NumberingFormats();
-            var format = new NumberingFormat();
-            format.FormatCode = formatCode;
-            format.NumberFormatId = numFmtId;
-            uint count = Stylesheet.NumberingFormats.Count ?? 0;
-            Stylesheet.NumberingFormats.Append(format);
-            count++;
-            Stylesheet.NumberingFormats.Count = count;
-            Stylesheet.Save();
-            return count;
+            Font value = new Font();
+            if (string.IsNullOrEmpty(name) == false) value.FontName = new FontName { Val = name };
+            if (sz.HasValue) value.FontSize = new FontSize { Val = sz.Value };
+            if (b.HasValue) value.Bold = new Bold { Val = b.Value };
+            if (i.HasValue) value.Italic = new Italic { Val = i.Value };
+            if (u.HasValue) value.Underline = new Underline { Val = u.Value };
+            if (strike.HasValue) value.Strike = new Strike { Val = strike.Value };
+            if (condense.HasValue) value.Condense = new Condense { Val = condense.Value };
+            if (extend.HasValue) value.Extend = new Extend { Val = extend.Value };
+            if (shadow.HasValue) value.Shadow = new Shadow { Val = shadow.Value };
+            if (vertAlig.HasValue) value.VerticalTextAlignment = new VerticalTextAlignment { Val = vertAlig.Value };
+            if (color.HasValue) value.Color = color.Value.ToSpreadsheetColor<Color>();
+            uint result = AddFont(value);
+            return new FontStyleValue(result, name, sz, b, i, u, color, vertAlig, strike, condense, extend, shadow);
+        }
+
+        internal NumberingFormatStyleValue CreateNumberingFormat(INumberingFormatStyle value)
+        {
+            return CreateNumberingFormat(value.NumberFormatId, value.FormatCode);
+        }
+
+        internal NumberingFormatStyleValue CreateNumberingFormat(uint? numFmtId = 0, string? formatCode = null)
+        {
+            NumberingFormat value = new NumberingFormat
+            {
+                FormatCode = formatCode,
+                NumberFormatId = numFmtId
+            };
+            uint result = AddNumberingFormat(value);
+            return new NumberingFormatStyleValue(result, numFmtId, formatCode);
         }
 
         internal Alignment GetAlignment(HorizontalAlignmentValues horizontal, VerticalAlignmentValues vertical, uint indent = 0, int relativeIndent = 0, bool shrinkToFit = false, bool wrapText = false, uint textRotation = 0, string? mergeCell = null, uint readingOrder = 0, bool justifyLastLine = false)
         {
-            var result = new Alignment();
-            result.Horizontal = horizontal;
-            result.Indent = indent;
-            result.JustifyLastLine = justifyLastLine;
-            result.MergeCell = mergeCell;
-            result.ReadingOrder = readingOrder;
-            result.RelativeIndent = relativeIndent;
-            result.ShrinkToFit = shrinkToFit;
-            result.TextRotation = textRotation;
-            result.Vertical = vertical;
-            result.WrapText = wrapText;
+            Alignment result = new Alignment
+            {
+                Horizontal = horizontal,
+                Indent = indent,
+                JustifyLastLine = justifyLastLine,
+                MergeCell = mergeCell,
+                ReadingOrder = readingOrder,
+                RelativeIndent = relativeIndent,
+                ShrinkToFit = shrinkToFit,
+                TextRotation = textRotation,
+                Vertical = vertical,
+                WrapText = wrapText
+            };
             return result;
         }
 
         internal Protection GetProtection(bool hidden, bool locked)
         {
-            var result = new Protection();
-            result.Hidden = hidden;
-            result.Locked = locked;
+            Protection result = new Protection
+            {
+                Hidden = hidden,
+                Locked = locked
+            };
             return result;
         }
 
-        internal CellStyle NewCellStyle(string name, uint? numberFormatId, uint? numberingFormat, uint? formatId, Alignment? alignment, uint? font, uint? border, uint? fill, Protection? protection, bool? pivotButton, bool? quotePrefix)
+        internal CellStyleValue NewCellStyle(string name, NumberingFormatStyleValue? numberingFormat, uint? formatId, Alignment? alignment, FontStyleValue? font, BorderStyleValue? border, FillStyleValue? fill, Protection? protection, bool? pivotButton, bool? quotePrefix)
         {
+            //DocumentFormat.OpenXml.Spreadsheet.CellFormat
+            uint? numberFormatId = numberingFormat.HasValue ? numberingFormat.Value.NumberFormatId : null;
             uint cellFormat = CreateCellFormat(numberFormatId, formatId, alignment, font, border, fill, protection, pivotButton, quotePrefix);
-            var value = new CellStyle(name, cellFormat, formatId, alignment, border, fill, font, numberFormatId, numberingFormat, pivotButton, protection, quotePrefix);
+            CellStyleValue value = new CellStyleValue(name, cellFormat, formatId, alignment, border, fill, font, numberingFormat, pivotButton, protection, quotePrefix);
             _styleCache[value.Name] = value;
             return value;
         }
@@ -387,8 +479,10 @@ namespace Eurostep.Excel
             DataValidations? dataValidations = CurrentSheet.Worksheet.GetFirstChild<DataValidations>();
             if (dataValidations == null)
             {
-                dataValidations = new DataValidations();
-                dataValidations.Count = 0;
+                dataValidations = new DataValidations
+                {
+                    Count = 0
+                };
                 InsertWorksheetChildElement(dataValidations);
             }
             uint count = dataValidations.Count?.Value ?? 0;
@@ -421,7 +515,7 @@ namespace Eurostep.Excel
 
         private void AddFilter(CellArea area)
         {
-            var autoFilter = new AutoFilter
+            AutoFilter autoFilter = new AutoFilter
             {
                 Reference = area.ToString(),
             };
@@ -431,7 +525,7 @@ namespace Eurostep.Excel
         private void AddNewTab(string name)
         {
             _sheetCount++;
-            var data = AddExcelWriterData(name, _sheetCount);
+            ExcelWriterData data = AddExcelWriterData(name, _sheetCount);
             AddSheet(data.SheetName, data.SheetNo);
             SetCurrentTab(name);
         }
@@ -441,7 +535,7 @@ namespace Eurostep.Excel
             Sheets sheets = Spreasheet.WorkbookPart?.Workbook?.GetFirstChild<Sheets>() ?? throw new ApplicationException();
             WorksheetPart worksheetPart = Spreasheet.WorkbookPart.AddNewPart<WorksheetPart>();
             worksheetPart.Worksheet = new Worksheet(new SheetData());
-            var sheet = new Sheet
+            Sheet sheet = new Sheet
             {
                 Id = Spreasheet.WorkbookPart.GetIdOfPart(worksheetPart),
                 SheetId = sheetId,
@@ -455,11 +549,11 @@ namespace Eurostep.Excel
         {
             if (area.HasRows)
             {
-                var definitionId = $"rId{id}";
-                var tableDefinitionPart = CurrentSheet.AddNewPart<TableDefinitionPart>(definitionId);
+                string definitionId = $"rId{id}";
+                TableDefinitionPart tableDefinitionPart = CurrentSheet.AddNewPart<TableDefinitionPart>(definitionId);
                 tableDefinitionPart.Table = CreateTable(area, id, tableStyleName);
-                var tablePartsCollection = CurrentSheet.Worksheet.Elements<TableParts>();
-                var tableParts = tablePartsCollection.FirstOrDefault();
+                IEnumerable<TableParts> tablePartsCollection = CurrentSheet.Worksheet.Elements<TableParts>();
+                TableParts? tableParts = tablePartsCollection.FirstOrDefault();
                 if (tableParts == null)
                 {
                     tableParts = new TableParts { Count = 0 };
@@ -467,7 +561,7 @@ namespace Eurostep.Excel
                 }
 
                 uint count = tableParts.Count ?? 0;
-                var tablePart = new TablePart { Id = definitionId };
+                TablePart tablePart = new TablePart { Id = definitionId };
                 tableParts.Count = count + 1;
                 tableParts.Append(tablePart);
                 CurrentSheet.Worksheet.Save();
@@ -499,29 +593,31 @@ namespace Eurostep.Excel
             validation.Error = errorText;
         }
 
-        private Column CreateColumn(ColumnId column, double columnWidth = 10, CellStyle? style = default)
+        private Column CreateColumn(ColumnId column, double columnWidth = 10, CellStyleValue? style = default)
         {
             return CreateColumn(column, column, columnWidth, style);
         }
 
-        private Column CreateColumn(ColumnId startColumn, ColumnId endColumn, double columnWidth = 10, CellStyle? style = default)
+        private Column CreateColumn(ColumnId startColumn, ColumnId endColumn, double columnWidth = 10, CellStyleValue? style = default)
         {
             columnWidth = columnWidth >= 10 ? columnWidth : 10;
-            var column = new Column();
-            column.Min = startColumn.No;
-            column.Max = endColumn.No;
-            column.Width = columnWidth;
-            column.CustomWidth = true;
-            column.BestFit = true;
-            column.Collapsed = false;
-            column.Hidden = false;
-            column.Style = (uint?)style;
+            Column column = new Column
+            {
+                Min = startColumn.No,
+                Max = endColumn.No,
+                Width = columnWidth,
+                CustomWidth = true,
+                BestFit = true,
+                Collapsed = false,
+                Hidden = false,
+                Style = (uint?)style
+            };
             return column;
         }
 
         private DataValidation CreateDataValidation(ColumnRange validationRange)
         {
-            var validation = new DataValidation()
+            DataValidation validation = new DataValidation()
             {
                 AllowBlank = true,
                 SequenceOfReferences = new ListValue<StringValue>() { InnerText = validationRange }
@@ -532,9 +628,11 @@ namespace Eurostep.Excel
 
         private uint CreateDifferentialColorFillFormat(PatternValues? patternType = null, GeneralColor? fgColor = null, GeneralColor? bgColor = null)
         {
-            var differentialFormat = new DifferentialFormat();
-            var format = new Fill();
-            format.PatternFill = new PatternFill { PatternType = patternType };
+            DifferentialFormat differentialFormat = new DifferentialFormat();
+            Fill format = new Fill
+            {
+                PatternFill = new PatternFill { PatternType = patternType }
+            };
             if (bgColor.HasValue) format.PatternFill.BackgroundColor = bgColor.Value.ToSpreadsheetColor<BackgroundColor>();
             if (fgColor.HasValue) format.PatternFill.ForegroundColor = fgColor.Value.ToSpreadsheetColor<ForegroundColor>();
             differentialFormat.AddChild(format);
@@ -543,16 +641,16 @@ namespace Eurostep.Excel
 
         private uint CreateDifferentialNumberingFormat(uint numFmtId, string formatCode)
         {
-            var differentialFormat = new DifferentialFormat();
-            var format = new NumberingFormat { NumberFormatId = numFmtId, FormatCode = formatCode };
+            DifferentialFormat differentialFormat = new DifferentialFormat();
+            NumberingFormat format = new NumberingFormat { NumberFormatId = numFmtId, FormatCode = formatCode };
             differentialFormat.Append(format);
             return AddDifferentialFormat(differentialFormat);
         }
 
         private Table CreateTable(CellArea area, uint id, string tableStyleName)
         {
-            var name = $"Table{id}";
-            var table = new Table
+            string name = $"Table{id}";
+            Table table = new Table
             {
                 Id = id,
                 Name = name,
@@ -561,31 +659,35 @@ namespace Eurostep.Excel
                 TotalsRowShown = false
             };
 
-            var autoFilter = new AutoFilter
+            AutoFilter autoFilter = new AutoFilter
             {
                 Reference = area.ToString()
             };
 
-            var sortConditionReference = $"{area.StartColumn}{area.StartRow + 1}:{area.GetLowerLeft()}";
-            var sortCondition = new SortCondition();
-            sortCondition.Reference = StringValue.ToString(sortConditionReference);
-            sortCondition.Descending = BooleanValue.ToBoolean(true);
+            string sortConditionReference = $"{area.StartColumn}{area.StartRow + 1}:{area.GetLowerLeft()}";
+            SortCondition sortCondition = new SortCondition
+            {
+                Reference = StringValue.ToString(sortConditionReference),
+                Descending = BooleanValue.ToBoolean(true)
+            };
 
-            var sortStateReference = $"{area.StartColumn}{area.StartRow + 1}:{area.GetLowerRight()}";
-            var sortState = new SortState();
-            sortState.Reference = StringValue.ToString(sortStateReference);
+            string sortStateReference = $"{area.StartColumn}{area.StartRow + 1}:{area.GetLowerRight()}";
+            SortState sortState = new SortState
+            {
+                Reference = StringValue.ToString(sortStateReference)
+            };
             sortState.Append(sortCondition);
 
-            var tableColumns = new TableColumns { Count = area.TotalColumns };
+            TableColumns tableColumns = new TableColumns { Count = area.TotalColumns };
             for (uint i = area.StartColumn; i <= area.EndColumn; i++)
             {
-                var header = area.Start.GetForColumn(i);
-                var colVal = GetCellValue(header);
-                var tableColumn = new TableColumn { Id = i, Name = colVal };
+                CellRef header = area.Start.GetForColumn(i);
+                string? colVal = GetCellValue(header);
+                TableColumn tableColumn = new TableColumn { Id = i, Name = colVal };
                 tableColumns.Append(tableColumn);
             }
 
-            var tableStyleInfo = new TableStyleInfo
+            TableStyleInfo tableStyleInfo = new TableStyleInfo
             {
                 Name = tableStyleName,
                 ShowFirstColumn = false,
@@ -603,27 +705,27 @@ namespace Eurostep.Excel
 
         private string? GetCellValue(CellRef cellRef)
         {
-            var rows = CurrentSheetData.Elements<Row>();
-            var row = rows.FirstOrDefault(r => r?.RowIndex?.Value == cellRef.RowId);
+            IEnumerable<Row> rows = CurrentSheetData.Elements<Row>();
+            Row? row = rows.FirstOrDefault(r => r?.RowIndex?.Value == cellRef.RowId);
             if (row == null) return null;
-            var cellReference = cellRef.ToString();
-            var cells = row.Elements<Cell>();
-            var cell = cells.FirstOrDefault(c => c?.CellReference?.Value == cellReference);
+            string cellReference = cellRef.ToString();
+            IEnumerable<Cell> cells = row.Elements<Cell>();
+            Cell? cell = cells.FirstOrDefault(c => c?.CellReference?.Value == cellReference);
             if (cell == null) return null;
             return GetCellValue(cell);
         }
 
         private string? GetCellValue(Cell cell)
         {
-            var value = cell.CellValue?.Text;
+            string? value = cell.CellValue?.Text;
             if (string.IsNullOrEmpty(value)) return null;
 
             // If the content of the first cell is stored as a shared string, get the text of the first cell
             // from the SharedStringTablePart and return it. Otherwise, return the string value of the cell.
             if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
             {
-                var shareStringPart = WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
-                var items = shareStringPart.SharedStringTable.Elements<SharedStringItem>().ToArray();
+                SharedStringTablePart shareStringPart = WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                SharedStringItem[] items = shareStringPart.SharedStringTable.Elements<SharedStringItem>().ToArray();
                 return items[int.Parse(value)].InnerText;
             }
 
@@ -632,7 +734,7 @@ namespace Eurostep.Excel
 
         private Columns GetColumns()
         {
-            var columns = CurrentSheet.Worksheet.GetFirstChild<Columns>();
+            Columns? columns = CurrentSheet.Worksheet.GetFirstChild<Columns>();
             if (columns == null)
             {
                 columns = new Columns();
@@ -676,7 +778,7 @@ namespace Eurostep.Excel
 
         private uint GetLastSheetId()
         {
-            var sheets = WorkbookPart.Workbook.Descendants<Sheet>();
+            IEnumerable<Sheet> sheets = WorkbookPart.Workbook.Descendants<Sheet>();
             if (sheets == null) return 0;
             uint result = 0;
             foreach (Sheet sheet in sheets)
@@ -689,10 +791,12 @@ namespace Eurostep.Excel
 
         private Cell GetNewCell(CellRef cellRef, ICellValue value)
         {
-            var result = new Cell();
-            result.CellReference = StringValue.FromString(cellRef.ToString());
-            result.DataType = new EnumValue<CellValues>(value.DataType);
-            result.StyleIndex = value.Style.HasValue ? new UInt32Value(value.Style.Value.Value) : default;
+            Cell result = new Cell
+            {
+                CellReference = StringValue.FromString(cellRef.ToString()),
+                DataType = new EnumValue<CellValues>(value.DataType),
+                StyleIndex = value.Style.HasValue ? new UInt32Value(value.Style.Value.Value) : default
+            };
             if (string.IsNullOrEmpty(value.Value)) return result;
             switch (value.DataType)
             {
@@ -704,8 +808,8 @@ namespace Eurostep.Excel
                     break;
 
                 case CellValues.InlineString:
-                    var text = new Text { Text = value.Value };
-                    var inlineString = new InlineString();
+                    Text text = new Text { Text = value.Value };
+                    InlineString inlineString = new InlineString();
                     inlineString.AppendChild(text);
                     result.AppendChild(inlineString);
                     break;
@@ -722,7 +826,7 @@ namespace Eurostep.Excel
 
         private List<Type> GetPossiblePredecessors(OpenXmlElement child, Type[] sequence)
         {
-            List<Type> possiblePredecessors = new List<Type>();
+            List<Type> possiblePredecessors = [];
             for (int i = 0; i < sequence.Length; i++)
             {
                 if (child.GetType().Name == sequence[i].Name)
@@ -736,7 +840,7 @@ namespace Eurostep.Excel
 
         private List<Type> GetPossibleSuccessors(OpenXmlElement child, Type[] sequence)
         {
-            List<Type> possibleSuccessors = new List<Type>();
+            List<Type> possibleSuccessors = [];
             for (int i = sequence.Length - 1; i > 0; i--)
             {
                 if (child.GetType().Name == sequence[i].Name)
@@ -750,7 +854,7 @@ namespace Eurostep.Excel
 
         private Stylesheet GetStylesheet()
         {
-            var stylesPart = WorkbookPart.WorkbookStylesPart;
+            WorkbookStylesPart? stylesPart = WorkbookPart.WorkbookStylesPart;
             if (stylesPart == null)
             {
                 stylesPart = WorkbookPart.AddNewPart<WorkbookStylesPart>();
@@ -761,7 +865,7 @@ namespace Eurostep.Excel
                 return stylesPart.Stylesheet;
             }
 
-            var stylesheet = GetDefaultStylesheet();
+            Stylesheet stylesheet = GetDefaultStylesheet();
             stylesPart.Stylesheet = stylesheet;
             stylesheet.Save();
             return stylesheet;
@@ -787,7 +891,7 @@ namespace Eurostep.Excel
 
         private WorksheetPart? GetWorksheetPartBySheetName(string sheetName)
         {
-            var sheets = WorkbookPart.Workbook.Descendants<Sheet>();
+            IEnumerable<Sheet> sheets = WorkbookPart.Workbook.Descendants<Sheet>();
             if (sheets != null)
             {
                 foreach (Sheet sheet in sheets)
@@ -871,7 +975,7 @@ namespace Eurostep.Excel
         private void InsertWorksheetChildElementAfter(OpenXmlElement child, Type[] sequence)
         {
             List<Type> possiblePredecessors = GetPossiblePredecessors(child, sequence); new List<Type>();
-            foreach (var element in CurrentSheet.Worksheet.ChildElements.Reverse())
+            foreach (OpenXmlElement? element in CurrentSheet.Worksheet.ChildElements.Reverse())
             {
                 if (possiblePredecessors.Contains(element.GetType()))
                 {
@@ -885,7 +989,7 @@ namespace Eurostep.Excel
         private void InsertWorksheetChildElementBefore(OpenXmlElement child, Type[] sequence)
         {
             List<Type> possiblePredecessors = GetPossibleSuccessors(child, sequence); new List<Type>();
-            foreach (var element in CurrentSheet.Worksheet.ChildElements)
+            foreach (OpenXmlElement element in CurrentSheet.Worksheet.ChildElements)
             {
                 if (possiblePredecessors.Contains(element.GetType()))
                 {
@@ -898,15 +1002,15 @@ namespace Eurostep.Excel
 
         private void NewColumnsData(CellRef startCell, params IPresentationColumn[] headers)
         {
-            var cellValues = new ICellValue[headers.Length];
-            var columns = GetColumns();
+            ICellValue[] cellValues = new ICellValue[headers.Length];
+            Columns columns = GetColumns();
             for (uint i = 0; i < headers.Length; i++)
             {
-                var headerCell = startCell.GetForColumn(i);
-                var header = headers[i];
-                var columnName = string.IsNullOrEmpty(header.DisplayName) ? $"Column {headerCell.Column}" : header.DisplayName;
+                CellRef headerCell = startCell.GetForColumn(i);
+                IPresentationColumn header = headers[i];
+                string columnName = string.IsNullOrEmpty(header.DisplayName) ? $"Column {headerCell.Column}" : header.DisplayName;
                 cellValues[i] = new DefaultCellValue(columnName, header.HeaderStyle);
-                var column = CreateColumn(headerCell.Column, header.Width, header.ColumnStyle);
+                Column column = CreateColumn(headerCell.Column, header.Width, header.ColumnStyle);
                 columns.Append(column);
             }
 
@@ -920,14 +1024,14 @@ namespace Eurostep.Excel
                 RowIndex = startCell.RowId,
             };
             CurrentSheetData.Append(row);
-            var startColumn = startCell.Column.No;
+            uint startColumn = startCell.Column.No;
             for (uint i = 0; i < cellValues.Length; i++)
             {
-                var cellValue = cellValues[i];
+                ICellValue cellValue = cellValues[i];
                 if (string.IsNullOrEmpty(cellValue.Value)) continue;
-                var columnIndex = startColumn + i;
-                var cellReference = startCell.GetForColumn(columnIndex);
-                var cell = GetNewCell(cellReference, cellValue);
+                uint columnIndex = startColumn + i;
+                CellRef cellReference = startCell.GetForColumn(columnIndex);
+                Cell cell = GetNewCell(cellReference, cellValue);
                 row.Append(cell);
             }
         }

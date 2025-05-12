@@ -36,7 +36,10 @@ namespace Eurostep.Excel
         public string? SheetId { get; }
         public uint StartRow { get; }
 
-        public static implicit operator string(ColumnRange c) => c.ToString();
+        public static implicit operator string(ColumnRange c)
+        {
+            return c.ToString();
+        }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
@@ -54,16 +57,25 @@ namespace Eurostep.Excel
             return $"'{SheetId}'!{ColumnRef(column)}{StartRowRef(startRow)}:{ColumnRef(column)}{EndRowRef(endRow)}";
         }
 
-        public string GetAbsolute() => Get(RefType.Absolute, RefType.Absolute, RefType.Absolute);
+        public string GetAbsolute()
+        {
+            return Get(RefType.Absolute, RefType.Absolute, RefType.Absolute);
+        }
 
         public override int GetHashCode()
         {
             return ToString().GetHashCode();
         }
 
-        public string GetRelative() => Get(RefType.Relative, RefType.Relative, RefType.Relative);
+        public string GetRelative()
+        {
+            return Get(RefType.Relative, RefType.Relative, RefType.Relative);
+        }
 
-        public override string ToString() => GetAbsolute();
+        public override string ToString()
+        {
+            return GetAbsolute();
+        }
 
         private string ColumnRef(RefType type)
         {

@@ -44,9 +44,15 @@ namespace Eurostep.Excel
             _disposed = true;
         }
 
-        public IEnumerator<ISheet> GetEnumerator() => new SheetEnumerator(_context.Sheets, _context);
+        public IEnumerator<ISheet> GetEnumerator()
+        {
+            return new SheetEnumerator(_context.Sheets, _context);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => new SheetEnumerator(_context.Sheets, _context);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new SheetEnumerator(_context.Sheets, _context);
+        }
 
         public ISheet? GetSheetById(string id)
         {
