@@ -13,6 +13,6 @@ internal sealed class CellStyleCache : ExcelStyleCache<ICellStyle, CellStyleValu
         FontStyleValue font = Writer.FontStyles.GetOrDefault(input.Font);
         BorderStyleValue border = Writer.BorderStyles.GetOrDefault(input.Border);
         FillStyleValue fill = Writer.FillStyles.GetOrDefault(input.Fill);
-        return Writer.NewCellStyle(input.Name, numberingFormat, input.FormatId, input.Alignment, font, border, fill, input.Protection, input.PivotButton, input.QuotePrefix);
+        return Writer.NewCellStyle(numberingFormat, input.FormatId, input.Alignment, font, border, fill, input.Protection, input.PivotButton, input.QuotePrefix);
     }
 }

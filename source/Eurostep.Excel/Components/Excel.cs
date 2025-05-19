@@ -1724,16 +1724,6 @@ public static class ExtensionMethods
         return self.SplitAndTrim(separator).SortAndJoin(separator);
     }
 
-    public static IEnumerable<TSource> EmptyOrCollection<TSource>(this IEnumerable<TSource> enumerable)
-    {
-        if (enumerable == null)
-        {
-            return [];
-        }
-
-        return enumerable;
-    }
-
     public static bool GetBoolean(this string self, bool defaultValue)
     {
         return self.GetBoolean().GetValueOrDefault(defaultValue);

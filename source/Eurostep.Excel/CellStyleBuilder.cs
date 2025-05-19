@@ -5,21 +5,19 @@ namespace Eurostep.Excel
     public sealed class CellStyleBuilder
     {
         private readonly ExcelWriter _excel;
-        private readonly string _name;
+        private readonly uint? _formatId;
         private Alignment? _alignment;
         private BorderStyleValue? _border;
         private CellStyleValue? _cellFormat;
         private FillStyleValue? _fill;
         private FontStyleValue? _font;
-        private readonly uint? _formatId;
         private NumberingFormatStyleValue? _numberingFormat;
         private bool? _pivotButton;
         private Protection? _protection;
         private bool? _quotePrefix;
 
-        internal CellStyleBuilder(string name, ExcelWriter excel)
+        internal CellStyleBuilder(ExcelWriter excel)
         {
-            _name = name;
             _excel = excel;
         }
 
@@ -33,12 +31,11 @@ namespace Eurostep.Excel
         public bool HasPivotButton => _pivotButton.HasValue;
         public bool HasProtection => _protection != null;
         public bool HasQuotePrefix => _quotePrefix.HasValue;
-        public string Name => _name;
 
         public CellStyleValue Build()
         {
             if (_cellFormat.HasValue) throw new ApplicationException($"Cell format style has alread been set");
-            _cellFormat = _excel.NewCellStyle(_name, _numberingFormat, _formatId, _alignment, _font, _border, _fill, _protection, _pivotButton, _quotePrefix);
+            _cellFormat = _excel.NewCellStyle(_numberingFormat, _formatId, _alignment, _font, _border, _fill, _protection, _pivotButton, _quotePrefix);
             return _cellFormat.Value;
         }
 

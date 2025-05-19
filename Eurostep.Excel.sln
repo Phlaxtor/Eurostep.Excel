@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eurostep.Excel", "source\Eurostep.Excel\Eurostep.Excel.csproj", "{2AB236DE-9F1E-4388-BDA7-CFE838DADA2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eurostep.Excel.Test", "source\Eurostep.Excel.Test\Eurostep.Excel.Test.csproj", "{F368815F-9B9D-47F8-BC00-C7AEA7EDEADE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eurostep.Excel.Tester", "source\Eurostep.Excel.Tester\Eurostep.Excel.Tester.csproj", "{A639C849-1E8F-47CC-920D-A5AE1B57267D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eurostep.Excel.Test", "source\Eurostep.Excel.Test\Eurostep.Excel.Test.csproj", "{8AC02A07-8F24-4CE7-A617-EDD03456F932}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,14 @@ Global
 		{2AB236DE-9F1E-4388-BDA7-CFE838DADA2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AB236DE-9F1E-4388-BDA7-CFE838DADA2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AB236DE-9F1E-4388-BDA7-CFE838DADA2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F368815F-9B9D-47F8-BC00-C7AEA7EDEADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F368815F-9B9D-47F8-BC00-C7AEA7EDEADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F368815F-9B9D-47F8-BC00-C7AEA7EDEADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F368815F-9B9D-47F8-BC00-C7AEA7EDEADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A639C849-1E8F-47CC-920D-A5AE1B57267D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A639C849-1E8F-47CC-920D-A5AE1B57267D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A639C849-1E8F-47CC-920D-A5AE1B57267D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A639C849-1E8F-47CC-920D-A5AE1B57267D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,41 +1,69 @@
-﻿namespace Eurostep.Excel
+﻿using System.Collections;
+
+namespace Eurostep.Excel;
+
+public abstract class ExcelSerializer
 {
-    public abstract class ExcelSerializer
+    private readonly ExcelRowInfo _rowInfo;
+    private readonly Type _type;
+
+    protected ExcelSerializer(Type type)
     {
-        private readonly Type _type;
+        _type = type;
+        _rowInfo = new ExcelRowInfo(type);
+    }
 
-        protected ExcelSerializer(Type type)
-        {
-            _type = type;
-        }
+    protected IEnumerable<T> DeserializeCollection<T>(ExcelReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
+        return Enumerable.Empty<T>();
+    }
 
-        public static IEnumerable<T> Deserialize<T>(Stream stream)
-        {
-            ExcelSerializer<T> serializer = new ExcelSerializer<T>();
-            return serializer.Deserialize(stream);
-        }
+    protected IEnumerable DeserializeCollection(ExcelReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
+        return default;
+    }
 
-        public static void Serialize<T>(Stream stream, IEnumerable<T> collection)
+    protected void Initialize(ExcelReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
+    }
+
+    protected void Serialize(ExcelWriter writer, IEnumerable collection)
+    {
+        ArgumentNullException.ThrowIfNull(writer, nameof(writer));
+        ArgumentNullException.ThrowIfNull(collection, nameof(collection));
+        foreach (object? item in collection)
         {
-            ExcelSerializer<T> serializer = new ExcelSerializer<T>();
-            serializer.Serialize(stream, collection);
+            Serialize(writer, item);
         }
     }
 
-    public sealed class ExcelSerializer<T> : ExcelSerializer
+    protected void Serialize(ExcelWriter writer, object item)
     {
-        public ExcelSerializer() : base(typeof(T))
-        {
-            //System.Xml.Serialization.XmlSerializer
-        }
+        ArgumentNullException.ThrowIfNull(writer, nameof(writer));
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
+    }
+}
 
-        public IEnumerable<T> Deserialize(Stream stream)
-        {
-            return Enumerable.Empty<T>();
-        }
+public sealed class ExcelSerializer<T> : ExcelSerializer
+{
+    public ExcelSerializer() : base(typeof(T))
+    {
+    }
 
-        public void Serialize(Stream stream, IEnumerable<T> collection)
+    public IReadOnlyCollection<T> Deserialize(ExcelReader reader)
+    {
+        List<T> collection = [.. DeserializeCollection<T>(reader)];
+        return collection;
+    }
+
+    public void Serialize(ExcelWriter writer, IEnumerable<T> collection)
+    {
+        foreach (T item in collection)
         {
+            Serialize(writer, item);
         }
     }
 }

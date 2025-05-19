@@ -20,6 +20,8 @@ public abstract class ExcelStylesheetAttribute : ExcelAttribute
     {
     }
 
+    public abstract ExcelStyleType StyleType { get; }
+
     internal ExcelStylesheetDefinition GetStylesheetDefinition()
     {
         object? definition = Activator.CreateInstance(GetDefinitionType());

@@ -12,7 +12,6 @@ namespace Eurostep.Excel
         private readonly FontStyleCache _fontStyleCache;
         private readonly NumberingFormatStyleCache _numberFormatStyleCache;
         private readonly Dictionary<string, ExcelWriterData> _reportCache = [];
-        private readonly Dictionary<string, CellStyleValue> _styleCache = [];
         private readonly Stylesheet? _stylesheet;
         private readonly WorkbookPart? _workbookPart;
         private ExcelWriterData? _currentData;
@@ -446,13 +445,12 @@ namespace Eurostep.Excel
             return result;
         }
 
-        internal CellStyleValue NewCellStyle(string name, NumberingFormatStyleValue? numberingFormat, uint? formatId, Alignment? alignment, FontStyleValue? font, BorderStyleValue? border, FillStyleValue? fill, Protection? protection, bool? pivotButton, bool? quotePrefix)
+        internal CellStyleValue NewCellStyle(NumberingFormatStyleValue? numberingFormat, uint? formatId, Alignment? alignment, FontStyleValue? font, BorderStyleValue? border, FillStyleValue? fill, Protection? protection, bool? pivotButton, bool? quotePrefix)
         {
             //DocumentFormat.OpenXml.Spreadsheet.CellFormat
             uint? numberFormatId = numberingFormat.HasValue ? numberingFormat.Value.NumberFormatId : null;
             uint cellFormat = CreateCellFormat(numberFormatId, formatId, alignment, font, border, fill, protection, pivotButton, quotePrefix);
-            CellStyleValue value = new CellStyleValue(name, cellFormat, formatId, alignment, border, fill, font, numberingFormat, pivotButton, protection, quotePrefix);
-            _styleCache[value.Name] = value;
+            CellStyleValue value = new CellStyleValue(cellFormat, formatId, alignment, border, fill, font, numberingFormat, pivotButton, protection, quotePrefix);
             return value;
         }
 

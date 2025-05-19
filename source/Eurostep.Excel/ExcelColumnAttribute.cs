@@ -1,22 +1,17 @@
 ﻿namespace Eurostep.Excel;
 
-public class ExcelColumnAttribute : ExcelAttribute
+[AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+public sealed class ExcelColumnAttribute : ExcelAttribute
 {
-    public ExcelColumnAttribute(string heading) : base()
-    {
-        Heading = heading;
-    }
+    public const double DefaultWidth = 10;
 
-    public ExcelColumnAttribute(string heading, string column, string description)
+    public ExcelColumnAttribute(ColumnName column, double width = DefaultWidth)
     {
-        Heading = heading;
         Column = column;
-        Description = description;
+        Width = width < DefaultWidth ? DefaultWidth : width;
     }
 
-    internal virtual string Column { get; set; }
+    public ColumnName Column { get; }
 
-    internal virtual string Heading { get; private set; }
-
-    internal virtual string Description { get; private set; }
+    public double Width { get; }
 }

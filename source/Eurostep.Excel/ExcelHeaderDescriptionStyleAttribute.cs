@@ -6,4 +6,6 @@ public sealed class ExcelHeaderDescriptionStyleAttribute<T> : ExcelStylesheetAtt
     public ExcelHeaderDescriptionStyleAttribute() : base()
     {
     }
+
+    public override ExcelStyleType StyleType => ExcelStyleType.HeaderDescription;
 }

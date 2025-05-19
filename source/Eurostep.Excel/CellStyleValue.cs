@@ -4,14 +4,13 @@ namespace Eurostep.Excel
 {
     public readonly struct CellStyleValue
     {
-        internal CellStyleValue(string name, uint value, uint? formatId, Alignment? alignment, BorderStyleValue? border, FillStyleValue? fill, FontStyleValue? font, NumberingFormatStyleValue? numberingFormat, bool? pivotButton, Protection? protection, bool? quotePrefix)
+        internal CellStyleValue(uint value, uint? formatId, Alignment? alignment, BorderStyleValue? border, FillStyleValue? fill, FontStyleValue? font, NumberingFormatStyleValue? numberingFormat, bool? pivotButton, Protection? protection, bool? quotePrefix)
         {
             Alignment = alignment;
             Border = border;
             Fill = fill;
             Font = font;
             FormatId = formatId;
-            Name = name;
             NumberingFormat = numberingFormat;
             PivotButton = pivotButton;
             Protection = protection;
@@ -33,7 +32,6 @@ namespace Eurostep.Excel
         public bool HasPivotButton => PivotButton.HasValue;
         public bool HasProtection => Protection != null;
         public bool HasQuotePrefix => QuotePrefix.HasValue;
-        public string Name { get; }
         public NumberingFormatStyleValue? NumberingFormat { get; }
         public bool? PivotButton { get; }
         public Protection? Protection { get; }

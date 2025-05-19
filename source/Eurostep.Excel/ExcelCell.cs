@@ -55,7 +55,7 @@ namespace Eurostep.Excel
             }
         }
 
-        public override sealed string ToString()
+        public sealed override string ToString()
         {
             return Value ?? string.Empty;
         }

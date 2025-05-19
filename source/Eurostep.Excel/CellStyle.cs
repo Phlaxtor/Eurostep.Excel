@@ -9,7 +9,6 @@ public abstract class CellStyle : ICellStyle
     public IFillStyle? Fill { get; init; }
     public IFontStyle? Font { get; init; }
     public uint? FormatId { get; init; }
-    public string Name { get; init; }
     public INumberingFormatStyle? NumberingFormat { get; init; }
     public bool? PivotButton { get; init; }
     public Protection? Protection { get; init; }

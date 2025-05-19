@@ -22,10 +22,10 @@ public class ExcelRowDefinitionReader
         List<string> fieldNames = [];
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            ExcelColumnAttribute? fieldNameAttribute = p.GetCustomAttribute<ExcelColumnAttribute>(false);
+            ExcelHeaderAttribute? fieldNameAttribute = p.GetCustomAttribute<ExcelHeaderAttribute>(false);
             if (fieldNameAttribute != null)
             {
-                string name = fieldNameAttribute.Heading;
+                string name = fieldNameAttribute.Name;
                 KeyValuePair<string, string> cell = headerRow.FirstOrDefault(p => name.Equals(p.Value.Trim(), StringComparison.InvariantCultureIgnoreCase));
                 if (cell.Key == null)
                 {
@@ -237,18 +237,18 @@ public class ExcelRowDefinitionReader
         Type objtype = rowInstance.GetType();
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelHeaderAttribute);
             if (fieldNameAttribute != null)
             {
-                string key = ((ExcelColumnAttribute)fieldNameAttribute).Column;
-                string heading = ((ExcelColumnAttribute)fieldNameAttribute).Heading;
-                worksheet.SetColumnsData(key, 20);
-                worksheet.WriteValueInCell(key, rowInstance.HeaderRow, heading);
-                if (rowInstance.DescriptionRow.HasValue)
-                {
-                    string description = ((ExcelColumnAttribute)fieldNameAttribute).Description;
-                    worksheet.WriteValueInCell(key, rowInstance.DescriptionRow.Value, description);
-                }
+                //string key = ((ExcelHeaderAttribute)fieldNameAttribute).Column;
+                //string heading = ((ExcelHeaderAttribute)fieldNameAttribute).Heading;
+                //worksheet.SetColumnsData(key, 20);
+                //worksheet.WriteValueInCell(key, rowInstance.HeaderRow, heading);
+                //if (rowInstance.DescriptionRow.HasValue)
+                //{
+                //    string description = ((ExcelHeaderAttribute)fieldNameAttribute).Description;
+                //    worksheet.WriteValueInCell(key, rowInstance.DescriptionRow.Value, description);
+                //}
             }
         }
         return worksheet;
@@ -362,10 +362,10 @@ public class ExcelRowDefinitionReader
         Type objtype = rowInstance.GetType();
         foreach (PropertyInfo p in objtype.GetProperties())
         {
-            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+            object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelHeaderAttribute);
             if (fieldNameAttribute != null)
             {
-                string key = rowInstance.HeadingsWithColumnNames[((ExcelColumnAttribute)fieldNameAttribute).Heading];
+                string key = rowInstance.HeadingsWithColumnNames[((ExcelHeaderAttribute)fieldNameAttribute).Name];
 
                 if (p.PropertyType == typeof(string))
                 {
@@ -396,24 +396,24 @@ public class ExcelRowDefinitionReader
             object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
             if (fieldNameAttribute != null)
             {
-                string columnName = ((ExcelColumnAttribute)fieldNameAttribute).Column;
-                if (p.PropertyType == typeof(string))
-                {
-                    string? value = (string?)p.GetValue(entry);
-                    worksheet.WriteValueInCell(columnName, rowIndex, value);
-                }
-                else if (p.PropertyType == typeof(DateTime?))
-                {
-                    DateTime? value = ((DateTime?)p.GetValue(entry));
-                    if (value.HasValue)
-                    {
-                        worksheet.WriteValueInCell(columnName, rowIndex, value.Value.ToString("yyyy-MM-dd"));
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException("Type " + p.PropertyType + " is not supported.");
-                }
+                //string columnName = ((ExcelHeaderAttribute)fieldNameAttribute).Column;
+                //if (p.PropertyType == typeof(string))
+                //{
+                //    string? value = (string?)p.GetValue(entry);
+                //    worksheet.WriteValueInCell(columnName, rowIndex, value);
+                //}
+                //else if (p.PropertyType == typeof(DateTime?))
+                //{
+                //    DateTime? value = ((DateTime?)p.GetValue(entry));
+                //    if (value.HasValue)
+                //    {
+                //        worksheet.WriteValueInCell(columnName, rowIndex, value.Value.ToString("yyyy-MM-dd"));
+                //    }
+                //}
+                //else
+                //{
+                //    throw new NotImplementedException("Type " + p.PropertyType + " is not supported.");
+                //}
             }
         }
     }

@@ -4,14 +4,24 @@ namespace Eurostep.Excel
 {
     public readonly struct ColumnId
     {
+        public static readonly ColumnId Empty = new ColumnId();
         public static readonly ColumnId MaxValue = new ColumnId(16384);
         public static readonly ColumnId MinValue = new ColumnId(1);
 
+        public ColumnId()
+        {
+            ColumnName = ColumnName.None;
+            Index = 0;
+            Name = string.Empty;
+            No = 0;
+        }
+
         public ColumnId(string name)
         {
-            Name = name;
             No = GetColumnNo(name);
+            Name = name;
             Index = GetColumnIndex(No);
+            ColumnName = (ColumnName)No;
         }
 
         public ColumnId(uint no)
@@ -19,8 +29,18 @@ namespace Eurostep.Excel
             No = no;
             Name = GetColumnName(no);
             Index = GetColumnIndex(no);
+            ColumnName = (ColumnName)no;
         }
 
+        public ColumnId(ColumnName columnName)
+        {
+            No = (uint)columnName;
+            Name = GetColumnName(No);
+            Index = GetColumnIndex(No);
+            ColumnName = columnName;
+        }
+
+        public ColumnName ColumnName { get; }
         public int Index { get; }
         public string Name { get; }
         public uint No { get; }
@@ -128,9 +148,10 @@ namespace Eurostep.Excel
             int r = (int)index;
             while (r > 0)
             {
+                r--;
                 int i = (r % 26);
                 r = (r / 26);
-                char c = (char)(i + 64);
+                char c = (char)(i + 65);
                 result = $"{c}{result}";
             }
             return result;

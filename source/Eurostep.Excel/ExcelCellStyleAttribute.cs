@@ -6,4 +6,6 @@ public sealed class ExcelCellStyleAttribute<T> : ExcelStylesheetAttribute<T>
     public ExcelCellStyleAttribute() : base()
     {
     }
+
+    public override ExcelStyleType StyleType => ExcelStyleType.Cell;
 }

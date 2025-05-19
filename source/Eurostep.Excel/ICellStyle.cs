@@ -9,7 +9,6 @@ public interface ICellStyle
     IFillStyle? Fill { get; }
     IFontStyle? Font { get; }
     uint? FormatId { get; }
-    string Name { get; }
     INumberingFormatStyle? NumberingFormat { get; }
     bool? PivotButton { get; }
     Protection? Protection { get; }
