@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="xr xr3" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" id="1" xr:uid="{272412A1-7589-4C77-A869-38DDCF8CC576}" name="Table1" displayName="Table1" ref="B3:D5" totalsRowShown="0">
+	<autoFilter ref="B3:D5" xr:uid="{272412A1-7589-4C77-A869-38DDCF8CC576}"/>
+	<tableColumns count="3">
+		<tableColumn id="1" xr3:uid="{622DFC15-8851-4DA2-BE91-CA372B085F2D}" name="col 1"/>
+		<tableColumn id="2" xr3:uid="{7E7ADF8C-74DB-443E-88BD-648EF5602297}" name="col 2"/>
+		<tableColumn id="3" xr3:uid="{CE7D6372-C94F-4208-A868-D886399F9ED0}" name="col 3"/>
+	</tableColumns>
+	<tableStyleInfo name="TableStyleLight9" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/>
+</table>
