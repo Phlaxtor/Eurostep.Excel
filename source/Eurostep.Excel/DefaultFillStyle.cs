@@ -1,8 +1,11 @@
-﻿namespace Eurostep.Excel;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 
-public class DefaultFillStyle
+namespace Eurostep.Excel;
+
+public class DefaultFillStyle : FillStyle
 {
     public DefaultFillStyle()
     {
+        PatternType = PatternValues.None;
     }
 }

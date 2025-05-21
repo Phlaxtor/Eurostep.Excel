@@ -5,8 +5,8 @@ namespace Eurostep.Excel
     public readonly struct ColumnId
     {
         public static readonly ColumnId Empty = new ColumnId();
-        public static readonly ColumnId MaxValue = new ColumnId(16384);
-        public static readonly ColumnId MinValue = new ColumnId(1);
+        public static readonly ColumnId MaxValue = new ColumnId(16384U);
+        public static readonly ColumnId MinValue = new ColumnId(1U);
 
         public ColumnId()
         {
@@ -40,6 +40,14 @@ namespace Eurostep.Excel
             ColumnName = columnName;
         }
 
+        public ColumnId(int index)
+        {
+            No = GetColumnNo(index);
+            Name = GetColumnName(index);
+            Index = index;
+            ColumnName = (ColumnName)No;
+        }
+
         public ColumnName ColumnName { get; }
         public int Index { get; }
         public string Name { get; }
@@ -67,12 +75,12 @@ namespace Eurostep.Excel
 
         public static ColumnId operator -(ColumnId l, int r)
         {
-            return new ColumnId(l.No - 1);
+            return new ColumnId(l.No - 1U);
         }
 
         public static ColumnId operator --(ColumnId c)
         {
-            return new ColumnId(c.No - 1);
+            return new ColumnId(c.No - 1U);
         }
 
         public static bool operator !=(ColumnId l, ColumnId r)
@@ -82,12 +90,12 @@ namespace Eurostep.Excel
 
         public static ColumnId operator +(ColumnId l, int r)
         {
-            return new ColumnId(l.No + 1);
+            return new ColumnId(l.No + 1U);
         }
 
         public static ColumnId operator ++(ColumnId c)
         {
-            return new ColumnId(c.No + 1);
+            return new ColumnId(c.No + 1U);
         }
 
         public static bool operator <(ColumnId l, ColumnId r)
@@ -137,15 +145,15 @@ namespace Eurostep.Excel
             return Name;
         }
 
-        private static int GetColumnIndex(uint column)
+        private static int GetColumnIndex(uint no)
         {
-            return ((int)column) - 1;
+            return ((int)no) - 1;
         }
 
-        private static string GetColumnName(uint index)
+        private static string GetColumnName(uint no)
         {
             string result = string.Empty;
-            int r = (int)index;
+            int r = (int)no;
             while (r > 0)
             {
                 r--;
@@ -155,6 +163,26 @@ namespace Eurostep.Excel
                 result = $"{c}{result}";
             }
             return result;
+        }
+
+        private static string GetColumnName(int index)
+        {
+            string result = string.Empty;
+            int r = index;
+            while (r >= 0)
+            {
+                r--;
+                int i = (r % 26);
+                r = (r / 26);
+                char c = (char)(i + 65);
+                result = $"{c}{result}";
+            }
+            return result;
+        }
+
+        private static uint GetColumnNo(int index)
+        {
+            return ((uint)index) + 1;
         }
 
         private static uint GetColumnNo(string column)

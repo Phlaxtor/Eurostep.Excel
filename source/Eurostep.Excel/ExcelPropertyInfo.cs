@@ -6,6 +6,7 @@ namespace Eurostep.Excel;
 public sealed class ExcelPropertyInfo
 {
     private readonly PropertyInfo _value;
+    private ColumnId? _columnId;
 
     public ExcelPropertyInfo(PropertyInfo value, int index)
     {
@@ -89,4 +90,22 @@ public sealed class ExcelPropertyInfo
     public bool Required { get; }
 
     public double Width { get; }
+
+    internal ColumnId GetColumnId()
+    {
+        if (_columnId.HasValue)
+        {
+            return _columnId.Value;
+        }
+        if (Column != ColumnName.None)
+        {
+            return new ColumnId(Column);
+        }
+        return new ColumnId(Index);
+    }
+
+    internal void SetColumnId(ColumnId columnId)
+    {
+        _columnId = columnId;
+    }
 }

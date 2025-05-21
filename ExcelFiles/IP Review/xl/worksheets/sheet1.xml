@@ -1,2 +1,228 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}"><dimension ref="A1:Z11"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/><cols><col min="1" max="1" width="25" style="6" bestFit="1" customWidth="1"/><col min="2" max="2" width="25" bestFit="1" customWidth="1"/><col min="3" max="3" width="30" bestFit="1" customWidth="1"/><col min="4" max="4" width="20" bestFit="1" customWidth="1"/><col min="5" max="5" width="15" bestFit="1" customWidth="1"/><col min="6" max="6" width="20" bestFit="1" customWidth="1"/><col min="7" max="8" width="15" bestFit="1" customWidth="1"/><col min="9" max="12" width="25" bestFit="1" customWidth="1"/><col min="13" max="13" width="10" style="9" bestFit="1" customWidth="1"/><col min="14" max="15" width="15" bestFit="1" customWidth="1"/><col min="16" max="16" width="30" bestFit="1" customWidth="1"/><col min="17" max="21" width="20" bestFit="1" customWidth="1"/><col min="22" max="23" width="15" bestFit="1" customWidth="1"/><col min="24" max="26" width="30" bestFit="1" customWidth="1"/></cols><sheetData><row r="1" spans="1:26" x14ac:dyDescent="0.25"><c r="A1" s="1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row><row r="2" spans="1:26" x14ac:dyDescent="0.25"><c r="A2" s="1" t="s"><v>2</v></c><c r="B2" t="s"><v>3</v></c></row><row r="3" spans="1:26" x14ac:dyDescent="0.25"><c r="A3" s="1" t="s"><v>4</v></c><c r="B3" t="s"><v>5</v></c></row><row r="4" spans="1:26" x14ac:dyDescent="0.25"><c r="A4" s="2" t="s"><v>6</v></c><c r="B4" t="s"><v>7</v></c></row><row r="5" spans="1:26" x14ac:dyDescent="0.25"><c r="A5" s="3" t="s"><v>8</v></c><c r="B5" t="s"><v>9</v></c></row><row r="6" spans="1:26" x14ac:dyDescent="0.25"><c r="A6" s="4" t="s"><v>10</v></c><c r="B6" t="s"><v>11</v></c></row><row r="7" spans="1:26" x14ac:dyDescent="0.25"><c r="A7" s="1" t="s"><v>12</v></c><c r="B7" t="s"><v>13</v></c></row><row r="8" spans="1:26" x14ac:dyDescent="0.25"><c r="A8" s="1" t="s"><v>14</v></c><c r="B8" t="s"><v>15</v></c></row><row r="9" spans="1:26" x14ac:dyDescent="0.25"><c r="A9" s="1" t="s"><v>16</v></c><c r="B9" t="s"><v>17</v></c></row><row r="11" spans="1:26" x14ac:dyDescent="0.25"><c r="A11" s="5" t="s"><v>18</v></c><c r="B11" s="7" t="s"><v>19</v></c><c r="C11" s="7" t="s"><v>20</v></c><c r="D11" s="5" t="s"><v>21</v></c><c r="E11" s="7" t="s"><v>22</v></c><c r="F11" s="5" t="s"><v>23</v></c><c r="G11" s="8" t="s"><v>24</v></c><c r="H11" s="7" t="s"><v>25</v></c><c r="I11" s="7" t="s"><v>26</v></c><c r="J11" s="8" t="s"><v>27</v></c><c r="K11" s="5" t="s"><v>28</v></c><c r="L11" s="8" t="s"><v>29</v></c><c r="M11" s="5" t="s"><v>30</v></c><c r="N11" s="7" t="s"><v>31</v></c><c r="O11" s="7" t="s"><v>32</v></c><c r="P11" s="7" t="s"><v>33</v></c><c r="Q11" s="7" t="s"><v>34</v></c><c r="R11" s="7" t="s"><v>35</v></c><c r="S11" s="7" t="s"><v>36</v></c><c r="T11" s="7" t="s"><v>37</v></c><c r="U11" s="7" t="s"><v>38</v></c><c r="V11" s="7" t="s"><v>39</v></c><c r="W11" s="7" t="s"><v>40</v></c><c r="X11" s="7" t="s"><v>41</v></c><c r="Y11" s="7" t="s"><v>42</v></c><c r="Z11" s="7" t="s"><v>43</v></c></row></sheetData><autoFilter ref="A11:Z11" xr:uid="{00000000-0009-0000-0000-000000000000}"/><conditionalFormatting sqref="A12:A1048576"><cfRule type="expression" dxfId="3" priority="1"><formula>AND(A12="", OR(D12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="D12:D1048576"><cfRule type="expression" dxfId="2" priority="2"><formula>AND(D12="", OR(A12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="F12:F1048576"><cfRule type="expression" dxfId="1" priority="3"><formula>AND(F12="", OR(A12&lt;&gt;"", D12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula></cfRule></conditionalFormatting><conditionalFormatting sqref="M12:M1048576"><cfRule type="expression" dxfId="0" priority="4"><formula>AND(M12="", OR(A12&lt;&gt;"", D12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;""))</formula></cfRule></conditionalFormatting><dataValidations count="2"><dataValidation type="whole" allowBlank="1" showErrorMessage="1" errorTitle="Item number validation" error="Value must be a number between 1 - 99999999" sqref="A12:A1048576" xr:uid="{00000000-0002-0000-0000-000001000000}"><formula1>1</formula1><formula2>99999999</formula2></dataValidation><dataValidation type="whole" allowBlank="1" showErrorMessage="1" errorTitle="Version validation" error="Value must be a number between 0 - 999" sqref="M12:M1048576" xr:uid="{00000000-0002-0000-0000-000002000000}"><formula1>0</formula1><formula2>999</formula2></dataValidation></dataValidations><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/><extLst><ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"><x14:dataValidations count="2" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main"><x14:dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="Item category validation" error="Value not allowed" xr:uid="{00000000-0002-0000-0000-000000000000}"><x14:formula1><xm:f>Values!$A$2:$A$5</xm:f></x14:formula1><xm:sqref>D12:D1048576</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="License status validation" error="Value not allowed" xr:uid="{00000000-0002-0000-0000-000003000000}"><x14:formula1><xm:f>Values!$B$2:$B$10</xm:f></x14:formula1><xm:sqref>G12:G1048576</xm:sqref></x14:dataValidation></x14:dataValidations></ext></extLst></worksheet>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">
+	<dimension ref="A1:Z11"/>
+	<sheetViews>
+		<sheetView tabSelected="1" workbookViewId="0"/>
+	</sheetViews>
+	<sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/>
+	<cols>
+		<col min="1" max="1" width="25" style="6" bestFit="1" customWidth="1"/>
+		<col min="2" max="2" width="25" bestFit="1" customWidth="1"/>
+		<col min="3" max="3" width="30" bestFit="1" customWidth="1"/>
+		<col min="4" max="4" width="20" bestFit="1" customWidth="1"/>
+		<col min="5" max="5" width="15" bestFit="1" customWidth="1"/>
+		<col min="6" max="6" width="20" bestFit="1" customWidth="1"/>
+		<col min="7" max="8" width="15" bestFit="1" customWidth="1"/>
+		<col min="9" max="12" width="25" bestFit="1" customWidth="1"/>
+		<col min="13" max="13" width="10" style="9" bestFit="1" customWidth="1"/>
+		<col min="14" max="15" width="15" bestFit="1" customWidth="1"/>
+		<col min="16" max="16" width="30" bestFit="1" customWidth="1"/>
+		<col min="17" max="21" width="20" bestFit="1" customWidth="1"/>
+		<col min="22" max="23" width="15" bestFit="1" customWidth="1"/>
+		<col min="24" max="26" width="30" bestFit="1" customWidth="1"/>
+	</cols>
+	<sheetData>
+		<row r="1" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A1" s="1" t="s">
+				<v>0</v>
+			</c>
+			<c r="B1" t="s">
+				<v>1</v>
+			</c>
+		</row>
+		<row r="2" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A2" s="1" t="s">
+				<v>2</v>
+			</c>
+			<c r="B2" t="s">
+				<v>3</v>
+			</c>
+		</row>
+		<row r="3" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A3" s="1" t="s">
+				<v>4</v>
+			</c>
+			<c r="B3" t="s">
+				<v>5</v>
+			</c>
+		</row>
+		<row r="4" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A4" s="2" t="s">
+				<v>6</v>
+			</c>
+			<c r="B4" t="s">
+				<v>7</v>
+			</c>
+		</row>
+		<row r="5" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A5" s="3" t="s">
+				<v>8</v>
+			</c>
+			<c r="B5" t="s">
+				<v>9</v>
+			</c>
+		</row>
+		<row r="6" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A6" s="4" t="s">
+				<v>10</v>
+			</c>
+			<c r="B6" t="s">
+				<v>11</v>
+			</c>
+		</row>
+		<row r="7" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A7" s="1" t="s">
+				<v>12</v>
+			</c>
+			<c r="B7" t="s">
+				<v>13</v>
+			</c>
+		</row>
+		<row r="8" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A8" s="1" t="s">
+				<v>14</v>
+			</c>
+			<c r="B8" t="s">
+				<v>15</v>
+			</c>
+		</row>
+		<row r="9" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A9" s="1" t="s">
+				<v>16</v>
+			</c>
+			<c r="B9" t="s">
+				<v>17</v>
+			</c>
+		</row>
+		<row r="11" spans="1:26" x14ac:dyDescent="0.25">
+			<c r="A11" s="5" t="s">
+				<v>18</v>
+			</c>
+			<c r="B11" s="7" t="s">
+				<v>19</v>
+			</c>
+			<c r="C11" s="7" t="s">
+				<v>20</v>
+			</c>
+			<c r="D11" s="5" t="s">
+				<v>21</v>
+			</c>
+			<c r="E11" s="7" t="s">
+				<v>22</v>
+			</c>
+			<c r="F11" s="5" t="s">
+				<v>23</v>
+			</c>
+			<c r="G11" s="8" t="s">
+				<v>24</v>
+			</c>
+			<c r="H11" s="7" t="s">
+				<v>25</v>
+			</c>
+			<c r="I11" s="7" t="s">
+				<v>26</v>
+			</c>
+			<c r="J11" s="8" t="s">
+				<v>27</v>
+			</c>
+			<c r="K11" s="5" t="s">
+				<v>28</v>
+			</c>
+			<c r="L11" s="8" t="s">
+				<v>29</v>
+			</c>
+			<c r="M11" s="5" t="s">
+				<v>30</v>
+			</c>
+			<c r="N11" s="7" t="s">
+				<v>31</v>
+			</c>
+			<c r="O11" s="7" t="s">
+				<v>32</v>
+			</c>
+			<c r="P11" s="7" t="s">
+				<v>33</v>
+			</c>
+			<c r="Q11" s="7" t="s">
+				<v>34</v>
+			</c>
+			<c r="R11" s="7" t="s">
+				<v>35</v>
+			</c>
+			<c r="S11" s="7" t="s">
+				<v>36</v>
+			</c>
+			<c r="T11" s="7" t="s">
+				<v>37</v>
+			</c>
+			<c r="U11" s="7" t="s">
+				<v>38</v>
+			</c>
+			<c r="V11" s="7" t="s">
+				<v>39</v>
+			</c>
+			<c r="W11" s="7" t="s">
+				<v>40</v>
+			</c>
+			<c r="X11" s="7" t="s">
+				<v>41</v>
+			</c>
+			<c r="Y11" s="7" t="s">
+				<v>42</v>
+			</c>
+			<c r="Z11" s="7" t="s">
+				<v>43</v>
+			</c>
+		</row>
+	</sheetData>
+	<autoFilter ref="A11:Z11" xr:uid="{00000000-0009-0000-0000-000000000000}"/>
+	<conditionalFormatting sqref="A12:A1048576">
+		<cfRule type="expression" dxfId="3" priority="1">
+			<formula>AND(A12="", OR(D12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula>
+		</cfRule>
+	</conditionalFormatting>
+	<conditionalFormatting sqref="D12:D1048576">
+		<cfRule type="expression" dxfId="2" priority="2">
+			<formula>AND(D12="", OR(A12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula>
+		</cfRule>
+	</conditionalFormatting>
+	<conditionalFormatting sqref="F12:F1048576">
+		<cfRule type="expression" dxfId="1" priority="3">
+			<formula>AND(F12="", OR(A12&lt;&gt;"", D12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;"", M12&lt;&gt;""))</formula>
+		</cfRule>
+	</conditionalFormatting>
+	<conditionalFormatting sqref="M12:M1048576">
+		<cfRule type="expression" dxfId="0" priority="4">
+			<formula>AND(M12="", OR(A12&lt;&gt;"", D12&lt;&gt;"", F12&lt;&gt;"", G12&lt;&gt;"", I12&lt;&gt;"", J12&lt;&gt;"", K12&lt;&gt;"", L12&lt;&gt;""))</formula>
+		</cfRule>
+	</conditionalFormatting>
+	<dataValidations count="2">
+		<dataValidation type="whole" allowBlank="1" showErrorMessage="1" errorTitle="Item number validation" error="Value must be a number between 1 - 99999999" sqref="A12:A1048576" xr:uid="{00000000-0002-0000-0000-000001000000}">
+			<formula1>1</formula1>
+			<formula2>99999999</formula2>
+		</dataValidation>
+		<dataValidation type="whole" allowBlank="1" showErrorMessage="1" errorTitle="Version validation" error="Value must be a number between 0 - 999" sqref="M12:M1048576" xr:uid="{00000000-0002-0000-0000-000002000000}">
+			<formula1>0</formula1>
+			<formula2>999</formula2>
+		</dataValidation>
+	</dataValidations>
+	<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+	<extLst>
+		<ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main">
+			<x14:dataValidations count="2" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">
+				<x14:dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="Item category validation" error="Value not allowed" xr:uid="{00000000-0002-0000-0000-000000000000}">
+					<x14:formula1>
+						<xm:f>Values!$A$2:$A$5</xm:f>
+					</x14:formula1>
+					<xm:sqref>D12:D1048576</xm:sqref>
+				</x14:dataValidation>
+				<x14:dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="License status validation" error="Value not allowed" xr:uid="{00000000-0002-0000-0000-000003000000}">
+					<x14:formula1>
+						<xm:f>Values!$B$2:$B$10</xm:f>
+					</x14:formula1>
+					<xm:sqref>G12:G1048576</xm:sqref>
+				</x14:dataValidation>
+			</x14:dataValidations>
+		</ext>
+	</extLst>
+</worksheet>

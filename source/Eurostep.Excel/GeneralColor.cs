@@ -6,9 +6,15 @@ namespace Eurostep.Excel
 {
     public readonly struct GeneralColor
     {
-        public static readonly GeneralColor Empty = new GeneralColor(Color.Empty);
+        public static readonly GeneralColor Empty = new GeneralColor();
         private readonly Color _color;
         private readonly double? _tint;
+
+        public GeneralColor()
+        {
+            _color = Color.Empty;
+            _tint = null;
+        }
 
         public GeneralColor(Color color, double? tint = null)
         {
