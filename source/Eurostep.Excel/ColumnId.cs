@@ -2,7 +2,7 @@
 
 namespace Eurostep.Excel
 {
-    public readonly struct ColumnId
+    public readonly struct ColumnId : IEquatable<ColumnId>, IComparable<ColumnId>
     {
         public static readonly ColumnId Empty = new ColumnId();
         public static readonly ColumnId MaxValue = new ColumnId(16384U);
@@ -11,7 +11,7 @@ namespace Eurostep.Excel
         public ColumnId()
         {
             ColumnName = ColumnName.None;
-            Index = 0;
+            Index = -1;
             Name = string.Empty;
             No = 0;
         }
@@ -49,8 +49,11 @@ namespace Eurostep.Excel
         }
 
         public ColumnName ColumnName { get; }
+
         public int Index { get; }
+
         public string Name { get; }
+
         public uint No { get; }
 
         public static implicit operator ColumnId(uint c)
@@ -123,11 +126,23 @@ namespace Eurostep.Excel
             return l.No >= r.No;
         }
 
+        public int CompareTo(ColumnId other)
+        {
+            return No.CompareTo(other.No);
+        }
+
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
-            if (obj is not ColumnId other) return false;
-            if (other.No != No) return false;
-            return true;
+            if (obj is ColumnId other)
+            {
+                return Equals(other);
+            }
+            return false;
+        }
+
+        public bool Equals(ColumnId other)
+        {
+            return No == other.No;
         }
 
         public CellRef GetCellRef(uint rowId, string? sheetId = null)
@@ -137,7 +152,7 @@ namespace Eurostep.Excel
 
         public override int GetHashCode()
         {
-            return unchecked((int)No);
+            return Index;
         }
 
         public override string ToString()

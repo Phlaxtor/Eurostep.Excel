@@ -2,7 +2,7 @@
 {
     public sealed class DefaultPresentationColumn : IPresentationColumn
     {
-        public DefaultPresentationColumn(string displayName, int width, CellStyleValue? styleIndex = default, CellStyleValue? columnStyle = default)
+        public DefaultPresentationColumn(string displayName, double width, CellStyleValue? styleIndex = default, CellStyleValue? columnStyle = default)
         {
             ColumnStyle = columnStyle;
             DisplayName = displayName;
@@ -13,6 +13,6 @@
         public CellStyleValue? ColumnStyle { get; }
         public string DisplayName { get; }
         public CellStyleValue? HeaderStyle { get; }
-        public int Width { get; }
+        public double Width { get; }
     }
 }

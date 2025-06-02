@@ -2,68 +2,62 @@
 
 namespace Eurostep.Excel;
 
-public abstract class ExcelSerializer
+public sealed class ExcelSerializer
 {
-    private readonly ExcelRowInfo _rowInfo;
-    private readonly Type _type;
+    private readonly Dictionary<Type, ExcelRowInfo> _typeToRowInfo = new Dictionary<Type, ExcelRowInfo>();
 
-    protected ExcelSerializer(Type type)
+    public ExcelSerializer(Type type)
     {
-        _type = type;
-        _rowInfo = new ExcelRowInfo(type);
+        _typeToRowInfo[type] = new ExcelRowInfo(type);
     }
 
-    protected IEnumerable<T> DeserializeCollection<T>(ExcelReader reader)
+    public ExcelSerializer(IEnumerable<Type> types)
     {
-        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
-        return Enumerable.Empty<T>();
-    }
-
-    protected IEnumerable DeserializeCollection(ExcelReader reader)
-    {
-        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
-        return default;
-    }
-
-    protected void Initialize(ExcelReader reader)
-    {
-        ArgumentNullException.ThrowIfNull(reader, nameof(reader));
-    }
-
-    protected void Serialize(ExcelWriter writer, IEnumerable collection)
-    {
-        ArgumentNullException.ThrowIfNull(writer, nameof(writer));
-        ArgumentNullException.ThrowIfNull(collection, nameof(collection));
-        foreach (object? item in collection)
+        foreach (var type in types)
         {
-            Serialize(writer, item);
+            _typeToRowInfo[type] = new ExcelRowInfo(type);
         }
     }
 
-    protected void Serialize(ExcelWriter writer, object item)
+    public IReadOnlyCollection<T> Deserialize<T>(ExcelReader reader, ExcelSerializationSettings settings)
     {
-        ArgumentNullException.ThrowIfNull(writer, nameof(writer));
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-    }
-}
-
-public sealed class ExcelSerializer<T> : ExcelSerializer
-{
-    public ExcelSerializer() : base(typeof(T))
-    {
-    }
-
-    public IReadOnlyCollection<T> Deserialize(ExcelReader reader)
-    {
-        List<T> collection = [.. DeserializeCollection<T>(reader)];
+        List<T> collection = [];
         return collection;
     }
 
-    public void Serialize(ExcelWriter writer, IEnumerable<T> collection)
+    public void Serialize<T>(ExcelWriter writer, IEnumerable<T> collection, ExcelSerializationSettings settings)
     {
         foreach (T item in collection)
         {
             Serialize(writer, item);
         }
+    }
+
+    private void Serialize<T>(ExcelWriter writer, T item)
+    {
+    }
+
+    private void Initialize(ExcelWriter writer, ExcelSerializationSettings settings, Type type)
+    {
+        if (_typeToRowInfo.TryGetValue(type, out var rowInfo) == false)
+        {
+            throw new ApplicationException();
+        }
+        writer.SetCurrentTab(settings.SheetName);
+        if (settings.UseHeaders)
+        {
+            var properties = rowInfo.GetProperties();
+            WriteHeader(writer, properties);
+        }
+    }
+
+    private void WriteHeader(ExcelWriter writer, ExcelPropertyInfo[] properties)
+    {
+        var builder = writer.AddHeaders();
+        foreach (var item in properties)
+        {
+            builder.New(item.Name, item.Width);
+        }
+        builder.Build();
     }
 }

@@ -472,7 +472,7 @@ namespace Eurostep.Excel
             InsertWorksheetChildElement(formatting);
         }
 
-        private void AddDataValidation(DataValidation dataValidation)
+        private uint AddDataValidation(DataValidation dataValidation)
         {
             DataValidations? dataValidations = CurrentSheet.Worksheet.GetFirstChild<DataValidations>();
             if (dataValidations == null)
@@ -487,6 +487,7 @@ namespace Eurostep.Excel
             count++;
             dataValidations.Count = count;
             dataValidations.Append(dataValidation);
+            return count;
         }
 
         private uint AddDifferentialFormat(DifferentialFormat dxf)
@@ -500,7 +501,7 @@ namespace Eurostep.Excel
             count++;
             Stylesheet.DifferentialFormats.Count = count;
             Stylesheet.Save();
-            return count - 1;
+            return count - 1; // TODO: is this correct or is it wrong everywhere else?
         }
 
         private ExcelWriterData AddExcelWriterData(string name, uint sheetNo, uint columnStart = 1, uint rowStart = 1)
@@ -550,19 +551,8 @@ namespace Eurostep.Excel
                 string definitionId = $"rId{id}";
                 TableDefinitionPart tableDefinitionPart = CurrentSheet.AddNewPart<TableDefinitionPart>(definitionId);
                 tableDefinitionPart.Table = CreateTable(area, id, tableStyleName);
-                IEnumerable<TableParts> tablePartsCollection = CurrentSheet.Worksheet.Elements<TableParts>();
-                TableParts? tableParts = tablePartsCollection.FirstOrDefault();
-                if (tableParts == null)
-                {
-                    tableParts = new TableParts { Count = 0 };
-                    CurrentSheet.Worksheet.Append(tableParts);
-                }
-
-                uint count = tableParts.Count ?? 0;
                 TablePart tablePart = new TablePart { Id = definitionId };
-                tableParts.Count = count + 1;
-                tableParts.Append(tablePart);
-                CurrentSheet.Worksheet.Save();
+                AddTablePart(tablePart);
 
                 //var dxfs = WorkbookPart.WorkbookStylesPart.RootElement.Descendants<DifferentialFormats>().FirstOrDefault();
                 //var differentialFormats1 = new DifferentialFormats() { Count = (UInt32Value)1U };
@@ -580,6 +570,23 @@ namespace Eurostep.Excel
                 //    WorkbookPart.WorkbookStylesPart.RootElement.ReplaceChild(differentialFormats1, dxfs);
                 //}
             }
+        }
+
+        private uint AddTablePart(TablePart tablePart)
+        {
+            IEnumerable<TableParts> tablePartsCollection = CurrentSheet.Worksheet.Elements<TableParts>();
+            TableParts? tableParts = tablePartsCollection.FirstOrDefault();
+            if (tableParts == null)
+            {
+                tableParts = new TableParts { Count = 0 };
+                CurrentSheet.Worksheet.Append(tableParts);
+            }
+
+            uint count = tableParts.Count ?? 0;
+            tableParts.Count = count + 1;
+            tableParts.Append(tablePart);
+            CurrentSheet.Worksheet.Save();
+            return count;
         }
 
         private void AddValidationError(DataValidation validation, string? errorText, string? errorTitle)
@@ -853,20 +860,19 @@ namespace Eurostep.Excel
         private Stylesheet GetStylesheet()
         {
             WorkbookStylesPart? stylesPart = WorkbookPart.WorkbookStylesPart;
-            if (stylesPart == null)
+            if (stylesPart is null)
             {
                 stylesPart = WorkbookPart.AddNewPart<WorkbookStylesPart>();
             }
 
-            if (stylesPart.Stylesheet != null)
+            if (stylesPart.Stylesheet is null)
             {
-                return stylesPart.Stylesheet;
+                Stylesheet stylesheet = GetDefaultStylesheet();
+                stylesPart.Stylesheet = stylesheet;
+                stylesheet.Save();
             }
 
-            Stylesheet stylesheet = GetDefaultStylesheet();
-            stylesPart.Stylesheet = stylesheet;
-            stylesheet.Save();
-            return stylesheet;
+            return stylesPart.Stylesheet;
         }
 
         private WorkbookPart GetWorkbookPart()

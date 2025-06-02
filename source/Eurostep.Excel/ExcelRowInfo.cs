@@ -17,7 +17,7 @@ public sealed class ExcelRowInfo
         foreach (var property in properties)
         {
             _properties[property.Index] = property;
-            _propertyLookup[property.Id] = property;
+            _propertyLookup.Add(property.Id, property);
         }
 
         foreach (ExcelAttribute attribute in type.GetAttributes<ExcelAttribute>())
@@ -27,15 +27,15 @@ public sealed class ExcelRowInfo
                 switch (style.StyleType)
                 {
                     case ExcelStyleType.Cell:
-                        CellStyle = style.GetStylesheetDefinition();
+                        GeneralCellStyle = style.GetStylesheetDefinition();
                         break;
 
                     case ExcelStyleType.Header:
-                        HeaderStyle = style.GetStylesheetDefinition();
+                        GeneralHeaderStyle = style.GetStylesheetDefinition();
                         break;
 
                     case ExcelStyleType.HeaderDescription:
-                        HeaderDescriptionStyle = style.GetStylesheetDefinition();
+                        GeneralHeaderDescriptionStyle = style.GetStylesheetDefinition();
                         break;
                 }
                 continue;
@@ -43,18 +43,34 @@ public sealed class ExcelRowInfo
         }
     }
 
-    public ExcelStylesheetDefinition? CellStyle { get; }
+    public ExcelStylesheetDefinition? GeneralCellStyle { get; }
 
-    [MemberNotNullWhen(true, nameof(CellStyle))]
+    public ExcelStylesheetDefinition? GeneralHeaderDescriptionStyle { get; }
+
+    public ExcelStylesheetDefinition? GeneralHeaderStyle { get; }
+
+    [MemberNotNullWhen(true, nameof(GeneralCellStyle))]
     public bool HasGeneralCellStyle { get; }
 
-    [MemberNotNullWhen(true, nameof(HeaderDescriptionStyle))]
+    [MemberNotNullWhen(true, nameof(GeneralHeaderDescriptionStyle))]
     public bool HasGeneralHeaderDescriptionStyle { get; }
 
-    [MemberNotNullWhen(true, nameof(HeaderStyle))]
+    [MemberNotNullWhen(true, nameof(GeneralHeaderStyle))]
     public bool HasGeneralHeaderStyle { get; }
 
-    public ExcelStylesheetDefinition? HeaderDescriptionStyle { get; }
+    internal ExcelPropertyInfo[] GetProperties()
+    {
+        var properties = new List<ExcelPropertyInfo>(_propertyLookup.Values);
+        properties.Sort();
+        return properties.ToArray();
+    }
 
-    public ExcelStylesheetDefinition? HeaderStyle { get; }
+    internal bool SetHeader(HeaderId header)
+    {
+        if (_propertyLookup.TryGetValue(header.Id, out ExcelPropertyInfo? info))
+        {
+            return info.SetColumnId(header.Column);
+        }
+        return false;
+    }
 }

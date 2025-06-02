@@ -5,6 +5,6 @@
         CellStyleValue? ColumnStyle { get; }
         string DisplayName { get; }
         CellStyleValue? HeaderStyle { get; }
-        int Width { get; }
+        double Width { get; }
     }
 }

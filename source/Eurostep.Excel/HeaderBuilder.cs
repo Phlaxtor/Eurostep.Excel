@@ -18,7 +18,7 @@
             _excel.AddHeaders(_headers.ToArray());
         }
 
-        public HeaderBuilder New(string displayName, int width, CellStyleValue? styleIndex = default, CellStyleValue? columnStyle = default)
+        public HeaderBuilder New(string displayName, double width, CellStyleValue? styleIndex = default, CellStyleValue? columnStyle = default)
         {
             _headers.Add(new DefaultPresentationColumn(displayName, width, styleIndex, columnStyle));
             return this;

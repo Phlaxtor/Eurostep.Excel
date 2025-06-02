@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Eurostep.Excel;
 
-public sealed class ExcelPropertyInfo
+public sealed class ExcelPropertyInfo : IEquatable<ExcelPropertyInfo>, IComparable<ExcelPropertyInfo>
 {
     private readonly PropertyInfo _value;
     private ColumnId? _columnId;
@@ -14,6 +14,11 @@ public sealed class ExcelPropertyInfo
         _value = value ?? throw new ArgumentNullException(nameof(value));
         foreach (ExcelAttribute attribute in value.GetAttributes<ExcelAttribute>())
         {
+            if (attribute is ExcelIgnoreAttribute)
+            {
+                Ignore = true;
+                continue;
+            }
             if (attribute is ExcelHeaderAttribute header)
             {
                 HeaderName = header.Name;
@@ -22,7 +27,7 @@ public sealed class ExcelPropertyInfo
             }
             if (attribute is ExcelColumnAttribute column)
             {
-                Column = column.Column;
+                ProvidedColumnName = column.Column;
                 Width = column.Width;
                 continue;
             }
@@ -51,12 +56,12 @@ public sealed class ExcelPropertyInfo
             }
         }
 
-        Id = (HeaderName ?? PropertyName).GetToUpperWithoutWhiteSpace();
+        Id = Name.GetToUpperWithoutWhiteSpace();
     }
 
     public ExcelStylesheetDefinition? CellStyle { get; }
 
-    public ColumnName Column { get; }
+    public ColumnId Column => GetColumnId();
 
     [MemberNotNullWhen(true, nameof(CellStyle))]
     public bool HasCellStyle { get; }
@@ -83,29 +88,81 @@ public sealed class ExcelPropertyInfo
 
     public string Id { get; }
 
+    public bool Ignore { get; }
+
     public int Index { get; }
 
+    public string Name => HeaderName ?? PropertyName;
+
     public string PropertyName => _value.Name;
+
+    public ColumnName ProvidedColumnName { get; }
 
     public bool Required { get; }
 
     public double Width { get; }
 
-    internal ColumnId GetColumnId()
+    public int CompareTo(ExcelPropertyInfo? other)
+    {
+        if (other is null)
+        {
+            throw new ArgumentNullException(nameof(other));
+        }
+        return Column.CompareTo(other.Column);
+    }
+
+    public bool Equals(ExcelPropertyInfo? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        return Column.Equals(other.Column);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ExcelPropertyInfo other)
+        {
+            return Equals(other);
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return $"{Name} ({Column})";
+    }
+
+    internal bool SetColumnId(ColumnId columnId)
+    {
+        if (_columnId.HasValue)
+        {
+            return false;
+        }
+        _columnId = columnId;
+        return true;
+    }
+
+    private ColumnId GetColumnId()
     {
         if (_columnId.HasValue)
         {
             return _columnId.Value;
         }
-        if (Column != ColumnName.None)
+        if (ProvidedColumnName != ColumnName.None)
         {
-            return new ColumnId(Column);
+            _columnId = new ColumnId(ProvidedColumnName);
         }
-        return new ColumnId(Index);
-    }
-
-    internal void SetColumnId(ColumnId columnId)
-    {
-        _columnId = columnId;
+        else
+        {
+            _columnId = new ColumnId(Index);
+        }
+        return _columnId.Value;
     }
 }

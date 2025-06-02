@@ -324,10 +324,6 @@ public static class Extensions
         var index = 0;
         foreach (PropertyInfo item in type.GetProperties(bindings))
         {
-            if (item.HasAttribute<ExcelAttribute>() == false)
-            {
-                continue;
-            }
             ExcelPropertyInfo property = new ExcelPropertyInfo(item, index);
             result.Add(property);
             index++;
