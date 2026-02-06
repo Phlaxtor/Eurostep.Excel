@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eurostep.Excel.Tester", "so
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eurostep.Excel.Test", "source\Eurostep.Excel.Test\Eurostep.Excel.Test.csproj", "{8AC02A07-8F24-4CE7-A617-EDD03456F932}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMA.Digimat.Toolbox.Excel", "source\FMA.Digimat.Toolbox.Excel\FMA.Digimat.Toolbox.Excel.csproj", "{C73495C5-3BFA-01C5-D7B9-81BFE37FE3EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AC02A07-8F24-4CE7-A617-EDD03456F932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C73495C5-3BFA-01C5-D7B9-81BFE37FE3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C73495C5-3BFA-01C5-D7B9-81BFE37FE3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C73495C5-3BFA-01C5-D7B9-81BFE37FE3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C73495C5-3BFA-01C5-D7B9-81BFE37FE3EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
