@@ -18,9 +18,9 @@ namespace Eurostep.Excel
             return _excel;
         }
 
-        public RowBuilder New(string? value, CellStyleValue? style = null, CellValues dataType = CellValues.String)
+        public RowBuilder New(string? value, CellValues? dataType = null, CellStyleValue? style = null)
         {
-            _row.Add(new DefaultCellValue(value, style, dataType));
+            _row.Add(new DefaultCellValue(value, style, dataType ?? CellValues.String));
             return this;
         }
     }

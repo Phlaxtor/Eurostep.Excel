@@ -4,7 +4,7 @@ namespace Eurostep.Excel
 {
     internal sealed class SheetEnumerator : ElementEnumerator<ISheet>
     {
-        public SheetEnumerator(Sheets sheets, ExcelContext context) : base(sheets.GetEnumerator(), context)
+        public SheetEnumerator(Sheets sheets, ExcelContext context) : base(sheets, context)
         {
         }
 

@@ -321,7 +321,7 @@ public static class Extensions
     {
         BindingFlags bindings = BindingFlags.Public | BindingFlags.Instance;
         List<ExcelPropertyInfo> result = [];
-        var index = 0;
+        int index = 0;
         foreach (PropertyInfo item in type.GetProperties(bindings))
         {
             ExcelPropertyInfo property = new ExcelPropertyInfo(item, index);

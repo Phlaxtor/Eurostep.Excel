@@ -46,16 +46,14 @@ namespace Eurostep.Excel
             string? value = ReturnValue();
             if (string.IsNullOrEmpty(value)) return null;
             CellValues dataType = GetCellValuesType();
-            switch (dataType)
-            {
-                case CellValues.Boolean: return value.GetBooleanText();
-                case CellValues.Number: return value.GetNumberText();
-                case CellValues.Date: return value.GetDateTimeText();
-                default: return value;
-            }
+
+            if (dataType == CellValues.Boolean) return value.GetBooleanText();
+            if (dataType == CellValues.Number) return value.GetNumberText();
+            if (dataType == CellValues.Date) return value.GetDateTimeText();
+            return value;
         }
 
-        public sealed override string ToString()
+        public override sealed string ToString()
         {
             return Value ?? string.Empty;
         }
@@ -90,13 +88,11 @@ namespace Eurostep.Excel
             string? value = _cell.CellValue?.Text;
             if (string.IsNullOrEmpty(value)) return null;
             CellValues dataType = GetCellValuesType();
-            switch (dataType)
-            {
-                case CellValues.Error: return default;
-                case CellValues.SharedString: return Context.GetSharedString(value);
-                case CellValues.InlineString: return GetInlineString();
-                default: return value;
-            }
+
+            if (dataType == CellValues.Error) return default;
+            if (dataType == CellValues.SharedString) return Context.GetSharedString(value);
+            if (dataType == CellValues.InlineString) return GetInlineString();
+            return value;
         }
 
         private CellValues GetCellValuesType()
@@ -105,7 +101,7 @@ namespace Eurostep.Excel
             _cellValues = _cell.DataType?.Value;
             if (_cellValues.HasValue) return _cellValues.Value;
             string? styleIndex = _cell.StyleIndex?.InnerText;
-            _cellValues = Context.GetCellValues(styleIndex);
+            _cellValues = Context.GetCellValues(styleIndex, CellValues.String);
             return _cellValues.Value;
         }
 
@@ -122,17 +118,14 @@ namespace Eurostep.Excel
         {
             if (_dataType.HasValue) return _dataType.Value;
             CellValues type = GetCellValuesType();
-            _dataType = type switch
-            {
-                CellValues.Boolean => DataType.Boolean,
-                CellValues.Date => DataType.DateTime,
-                CellValues.Error => DataType.String,
-                CellValues.InlineString => DataType.String,
-                CellValues.Number => DataType.Number,
-                CellValues.SharedString => DataType.String,
-                CellValues.String => DataType.String,
-                _ => DataType.String,
-            };
+            if (type == CellValues.Boolean) _dataType = DataType.Boolean;
+            else if (type == CellValues.Date) _dataType = DataType.DateTime;
+            else if (type == CellValues.Error) _dataType = DataType.String;
+            else if (type == CellValues.InlineString) _dataType = DataType.String;
+            else if (type == CellValues.Number) _dataType = DataType.Number;
+            else if (type == CellValues.SharedString) _dataType = DataType.String;
+            else if (type == CellValues.String) _dataType = DataType.String;
+            else _dataType = DataType.String;
             return _dataType.Value;
         }
 

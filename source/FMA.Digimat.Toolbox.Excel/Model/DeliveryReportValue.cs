@@ -18,13 +18,25 @@
 
         public string Value { get; }
 
-        public static implicit operator bool(DeliveryReportValue value) => value.IsUpdated;
+        public static implicit operator bool(DeliveryReportValue value)
+        {
+            return value.IsUpdated;
+        }
 
-        public static implicit operator string(DeliveryReportValue value) => value.Value;
+        public static implicit operator string(DeliveryReportValue value)
+        {
+            return value.Value;
+        }
 
-        public static bool operator false(DeliveryReportValue value) => value.IsUpdated == false;
+        public static bool operator false(DeliveryReportValue value)
+        {
+            return value.IsUpdated == false;
+        }
 
-        public static bool operator true(DeliveryReportValue value) => value.IsUpdated == true;
+        public static bool operator true(DeliveryReportValue value)
+        {
+            return value.IsUpdated == true;
+        }
 
         public override int GetHashCode()
         {

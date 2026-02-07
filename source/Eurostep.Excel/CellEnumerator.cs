@@ -4,7 +4,7 @@ namespace Eurostep.Excel
 {
     internal sealed class CellEnumerator : ElementEnumerator<ICell>
     {
-        public CellEnumerator(Row row, ExcelContext context) : base(row.GetEnumerator(), context)
+        public CellEnumerator(Row row, ExcelContext context) : base(row, context)
         {
         }
 

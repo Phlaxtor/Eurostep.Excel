@@ -2,49 +2,49 @@
 {
     public interface ISparePartExcelRowData
     {
-        public string NcageCage { get; set; }
-        public string PartNumber { get; set; }
-        public string CompleteItemName { get; set; }
-        public string TechnicalDescription { get; set; }
-        public string ModelIdentification { get; set; }
-        public string NSNGC { get; set; }
-        public string NIIN { get; set; }
-        public string PartOfSystem { get; set; }
-        public string BaseUnitOfMeasure { get; set; }
-        public string Weight { get; set; }
-        public string Length { get; set; }
-        public string Width { get; set; }
-        public string Height { get; set; }
-        public string SuppliedWithSerialNumber { get; set; }
-        public string UnitPrice { get; set; }
-        public string Currency { get; set; }
-        public string EstimatedDeliveryTime { get; set; }
-        public string EstimatedDeliveryTimeUnit { get; set; }
-        public string BuMGtin { get; set; }
-        public string POuMUnitOfMeasure { get; set; }
-        public string POuMSupplier { get; set; }
-        public string POuMNumberOfBuM { get; set; }
-        public string POuMGtin { get; set; }
-        public string ShelfLifeLimit { get; set; }
-        public string ShelfLifeLimitUnit { get; set; }
-        public string Repairable { get; set; }
-        public string PointOfContact { get; set; }
-        public string URLwebsite { get; set; }
-        public string ProductDataSheet { get; set; }
-        public string USOrigin { get; set; }
-        public string RadioactiveMaterial { get; set; }
-        public string MainEquipment { get; set; }
-        public string Isotop { get; set; }
-        public string Activity { get; set; }
-        public string LaserClassification { get; set; }
-        public string LaserWavelength { get; set; }
-        public string BeamDivergence { get; set; }
-        public string Effect { get; set; }
-        public string PulseLength { get; set; }
-        public string Energy { get; set; }
-        public string Frequency { get; set; }
-        public string FrequencyUnit { get; set; }
-        public string HazardousClass { get; set; }
-        public string UNnumber { get; set; }
+        string NcageCage { get; set; }
+        string PartNumber { get; set; }
+        string CompleteItemName { get; set; }
+        string TechnicalDescription { get; set; }
+        string ModelIdentification { get; set; }
+        string NSNGC { get; set; }
+        string NIIN { get; set; }
+        string PartOfSystem { get; set; }
+        string BaseUnitOfMeasure { get; set; }
+        string Weight { get; set; }
+        string Length { get; set; }
+        string Width { get; set; }
+        string Height { get; set; }
+        string SuppliedWithSerialNumber { get; set; }
+        string UnitPrice { get; set; }
+        string Currency { get; set; }
+        string EstimatedDeliveryTime { get; set; }
+        string EstimatedDeliveryTimeUnit { get; set; }
+        string BuMGtin { get; set; }
+        string POuMUnitOfMeasure { get; set; }
+        string POuMSupplier { get; set; }
+        string POuMNumberOfBuM { get; set; }
+        string POuMGtin { get; set; }
+        string ShelfLifeLimit { get; set; }
+        string ShelfLifeLimitUnit { get; set; }
+        string Repairable { get; set; }
+        string PointOfContact { get; set; }
+        string URLwebsite { get; set; }
+        string ProductDataSheet { get; set; }
+        string USOrigin { get; set; }
+        string RadioactiveMaterial { get; set; }
+        string MainEquipment { get; set; }
+        string Isotop { get; set; }
+        string Activity { get; set; }
+        string LaserClassification { get; set; }
+        string LaserWavelength { get; set; }
+        string BeamDivergence { get; set; }
+        string Effect { get; set; }
+        string PulseLength { get; set; }
+        string Energy { get; set; }
+        string Frequency { get; set; }
+        string FrequencyUnit { get; set; }
+        string HazardousClass { get; set; }
+        string UNnumber { get; set; }
     }
 }

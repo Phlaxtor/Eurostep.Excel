@@ -25,26 +25,28 @@ namespace FMA.Digimat.Toolbox.Excel
             BorderStyleValues style,
             HexBinaryValue argbColor)
         {
-            var border = new Border();
-            border.TopBorder = new TopBorder
+            Border border = new Border
             {
-                Style = new EnumValue<BorderStyleValues>(style),
-                Color = new Spreadsheet.Color { Rgb = argbColor }
-            };
-            border.RightBorder = new RightBorder
-            {
-                Style = new EnumValue<BorderStyleValues>(style),
-                Color = new Spreadsheet.Color { Rgb = argbColor }
-            };
-            border.BottomBorder = new BottomBorder
-            {
-                Style = new EnumValue<BorderStyleValues>(style),
-                Color = new Spreadsheet.Color { Rgb = argbColor }
-            };
-            border.LeftBorder = new LeftBorder
-            {
-                Style = new EnumValue<BorderStyleValues>(style),
-                Color = new Spreadsheet.Color { Rgb = argbColor }
+                TopBorder = new TopBorder
+                {
+                    Style = new EnumValue<BorderStyleValues>(style),
+                    Color = new Spreadsheet.Color { Rgb = argbColor }
+                },
+                RightBorder = new RightBorder
+                {
+                    Style = new EnumValue<BorderStyleValues>(style),
+                    Color = new Spreadsheet.Color { Rgb = argbColor }
+                },
+                BottomBorder = new BottomBorder
+                {
+                    Style = new EnumValue<BorderStyleValues>(style),
+                    Color = new Spreadsheet.Color { Rgb = argbColor }
+                },
+                LeftBorder = new LeftBorder
+                {
+                    Style = new EnumValue<BorderStyleValues>(style),
+                    Color = new Spreadsheet.Color { Rgb = argbColor }
+                }
             };
             self.Borders.Append(border);
             if (self.Borders.Count is null)
@@ -82,7 +84,7 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ApplicationException("Stylesheet.CellFormats must not be null.");
             }
 
-            var cellFormat = new CellFormat();
+            CellFormat cellFormat = new CellFormat();
 
             if (pivotButton.HasValue)
             {
@@ -184,11 +186,13 @@ namespace FMA.Digimat.Toolbox.Excel
             const uint lowestIdForCustomFormat = 164; // lower values are reserved for built-in formats
             if (self.NumberingFormats == null)
             {
-                self.NumberingFormats = new();
-                self.NumberingFormats.Count = 0;
+                self.NumberingFormats = new()
+                {
+                    Count = 0
+                };
             }
             uint numberFormatId = lowestIdForCustomFormat + self.NumberingFormats.Count;
-            var numberFormat = new NumberingFormat() { FormatCode = formatCode, NumberFormatId = numberFormatId };
+            NumberingFormat numberFormat = new NumberingFormat() { FormatCode = formatCode, NumberFormatId = numberFormatId };
             self.NumberingFormats.Append(numberFormat);
             self.NumberingFormats.Count++;
             self.Save();
@@ -221,9 +225,10 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ApplicationException("Stylesheet.Fills must not be null.");
             }
 
-            var fill = new Fill();
-
-            fill.PatternFill = new PatternFill { PatternType = patternType };
+            Fill fill = new Fill
+            {
+                PatternFill = new PatternFill { PatternType = patternType }
+            };
 
             if (string.IsNullOrEmpty(foregroundColor) == false)
             {
@@ -294,7 +299,7 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ApplicationException("Stylesheet.Fonts must not be null.");
             }
 
-            var font = new Font();
+            Font font = new Font();
             if (!string.IsNullOrEmpty(fontName))
             {
                 font.FontName = new FontName { Val = StringValue.ToString(fontName) };
@@ -376,10 +381,11 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ApplicationException("Stylesheet.Fills must not be null.");
             }
 
-            var fill = new Fill();
-
-            fill.PatternFill = new PatternFill { PatternType = PatternValues.Solid };
-            var foregroundColor = new ForegroundColor { Rgb = argbColor };
+            Fill fill = new Fill
+            {
+                PatternFill = new PatternFill { PatternType = PatternValues.Solid }
+            };
+            ForegroundColor foregroundColor = new ForegroundColor { Rgb = argbColor };
             fill.PatternFill.Append(foregroundColor);
             fill.PatternFill.Append(new BackgroundColor { Indexed = (UInt32Value)64U });
 

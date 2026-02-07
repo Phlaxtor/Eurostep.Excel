@@ -135,10 +135,10 @@ namespace Eurostep.Excel
         {
             CurrentData.IncreaseRowNo();
             ICellValue[] cells = new ICellValue[values.Length + 1];
-            cells[0] = new DefaultCellValue(header, style);
+            cells[0] = new DefaultCellValue(header, style, CellValues.String);
             for (int i = 0; i < values.Length; i++)
             {
-                cells[i + 1] = new DefaultCellValue(values[i]);
+                cells[i + 1] = new DefaultCellValue(values[i], null, CellValues.String);
             }
             CellRef startCell = CurrentData.GetCurrentCell();
             WriteNewRowValues(startCell, cells);
@@ -802,29 +802,45 @@ namespace Eurostep.Excel
                 DataType = new EnumValue<CellValues>(value.DataType),
                 StyleIndex = value.Style.HasValue ? new UInt32Value(value.Style.Value.Value) : default
             };
-            if (string.IsNullOrEmpty(value.Value)) return result;
-            switch (value.DataType)
+            if (string.IsNullOrEmpty(value.Value))
             {
-                case CellValues.Boolean:
-                case CellValues.Number:
-                case CellValues.String:
-                case CellValues.Date:
-                    result.CellValue = new CellValue(value.Value);
-                    break;
+                return result;
+            }
 
-                case CellValues.InlineString:
-                    Text text = new Text { Text = value.Value };
-                    InlineString inlineString = new InlineString();
-                    inlineString.AppendChild(text);
-                    result.AppendChild(inlineString);
-                    break;
-
-                case CellValues.Error:
-                    throw new ApplicationException($"Error in cell '{cellRef}'");
-                case CellValues.SharedString:
-                    throw new NotImplementedException($"Not implemented support for shared strings");
-                default:
-                    throw new NotSupportedException($"Not supported value: '{value.DataType}'");
+            if (value.DataType == CellValues.Boolean)
+            {
+                result.CellValue = new CellValue(value.Value);
+            }
+            else if (value.DataType == CellValues.Number)
+            {
+                result.CellValue = new CellValue(value.Value);
+            }
+            else if (value.DataType == CellValues.String)
+            {
+                result.CellValue = new CellValue(value.Value);
+            }
+            else if (value.DataType == CellValues.Date)
+            {
+                result.CellValue = new CellValue(value.Value);
+            }
+            else if (value.DataType == CellValues.InlineString)
+            {
+                Text text = new Text { Text = value.Value };
+                InlineString inlineString = new InlineString();
+                inlineString.AppendChild(text);
+                result.AppendChild(inlineString);
+            }
+            else if (value.DataType == CellValues.Error)
+            {
+                throw new ApplicationException($"Error in cell '{cellRef}'");
+            }
+            else if (value.DataType == CellValues.SharedString)
+            {
+                throw new NotImplementedException($"Not implemented support for shared strings");
+            }
+            else
+            {
+                throw new NotSupportedException($"Not supported value: '{value.DataType}'");
             }
             return result;
         }
@@ -1013,7 +1029,7 @@ namespace Eurostep.Excel
                 CellRef headerCell = startCell.GetForColumn(i);
                 IPresentationColumn header = headers[i];
                 string columnName = string.IsNullOrEmpty(header.DisplayName) ? $"Column {headerCell.Column}" : header.DisplayName;
-                cellValues[i] = new DefaultCellValue(columnName, header.HeaderStyle);
+                cellValues[i] = new DefaultCellValue(columnName, header.HeaderStyle, CellValues.String);
                 Column column = CreateColumn(headerCell.Column, header.Width, header.ColumnStyle);
                 columns.Append(column);
             }

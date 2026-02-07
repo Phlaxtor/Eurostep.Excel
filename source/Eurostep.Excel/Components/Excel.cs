@@ -611,7 +611,7 @@ public static class ExcelExtensionMethods
         return count2;
     }
 
-    public static Cell GetCell(this WorksheetPart self, string columnName, uint rowIndex, CellValues dataType = CellValues.String, uint? styleIndex = null)
+    public static Cell GetCell(this WorksheetPart self, string columnName, uint rowIndex, CellValues dataType, uint? styleIndex = null)
     {
         if (string.IsNullOrWhiteSpace(columnName))
         {
@@ -704,7 +704,7 @@ public static class ExcelExtensionMethods
 
     public static string GetCellValue(this WorksheetPart self, string columnName, uint rowIndex)
     {
-        Cell cell = self.GetCell(columnName, rowIndex);
+        Cell cell = self.GetCell(columnName, rowIndex, CellValues.String);
         return self.OpenXmlPackage.GetCellValue(cell);
     }
 
@@ -1374,7 +1374,7 @@ public static class ExcelExtensionMethods
             {
                 uint key2 = item.Key;
                 string value = item.Value;
-                self.WriteValueInCell(key, key2, value);
+                self.WriteValueInCell(key, key2, value, CellValues.String);
             }
         }
     }
@@ -1398,71 +1398,75 @@ public static class ExcelExtensionMethods
             {
                 string key2 = item.Key;
                 string value = item.Value;
-                self.WriteValueInCell(key2, key, value);
+                self.WriteValueInCell(key2, key, value, CellValues.String);
             }
         }
     }
 
-    public static Cell WriteValueInCell(this WorksheetPart self, string columnName, uint rowIndex, string? cellValue, CellValues dataType = CellValues.String, uint? styleIndex = null)
+    public static Cell WriteValueInCell(this WorksheetPart self, string columnName, uint rowIndex, string? cellValue, CellValues dataType, uint? styleIndex = null)
     {
-        return self.GetCell(columnName, rowIndex).WriteValueInCell(cellValue, dataType, styleIndex);
+        return self.GetCell(columnName, rowIndex, CellValues.String).WriteValueInCell(cellValue, dataType, styleIndex);
     }
 
-    public static Cell WriteValueInCell(this WorksheetPart self, uint columnNo, uint rowIndex, string cellValue, CellValues dataType = CellValues.String, uint? styleIndex = null)
+    public static Cell WriteValueInCell(this WorksheetPart self, uint columnNo, uint rowIndex, string cellValue, CellValues dataType, uint? styleIndex = null)
     {
         string columnNameFromIndex = ExcelUtilityMethods.GetColumnNameFromIndex(columnNo);
-        return self.GetCell(columnNameFromIndex, rowIndex).WriteValueInCell(cellValue, dataType, styleIndex);
+        return self.GetCell(columnNameFromIndex, rowIndex, CellValues.String).WriteValueInCell(cellValue, dataType, styleIndex);
     }
 
     public static Cell WriteValueInCell(this Cell self, string? cellValue, CellValues? dataType = null, uint? styleIndex = null)
     {
-        if (self != null)
+        if (self is null)
         {
-            CellValues dataType2 = self.GetDataType(dataType);
-            string valueForCell = ExcelUtilityMethods.GetValueForCell(cellValue, dataType2);
-            dataType2 = ExcelUtilityMethods.GetDataTypeForCell(cellValue, dataType2);
-            self.DataType = new EnumValue<CellValues>(dataType2);
-            if (styleIndex.HasValue)
+            throw new ArgumentNullException("self", "The provided Cell must not be null.");
+        }
+
+        CellValues dataType2 = self.GetDataType(dataType);
+        string valueForCell = ExcelUtilityMethods.GetValueForCell(cellValue, dataType2);
+        dataType2 = ExcelUtilityMethods.GetDataTypeForCell(cellValue, dataType2);
+        self.DataType = new EnumValue<CellValues>(dataType2);
+        if (styleIndex.HasValue)
+        {
+            self.StyleIndex = UInt32Value.ToUInt32(styleIndex.Value);
+        }
+
+        if (dataType2 == CellValues.Boolean)
+        {
+            self.CellValue = new CellValue(valueForCell);
+        }
+        else if (dataType2 == CellValues.Date)
+        {
+            self.CellValue = new CellValue(valueForCell);
+        }
+        else if (dataType2 == CellValues.Error)
+        {
+            throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
+        }
+        else if (dataType2 == CellValues.InlineString)
+        {
+            Text newChild = new Text
             {
-                self.StyleIndex = UInt32Value.ToUInt32(styleIndex.Value);
-            }
-
-            switch (dataType2)
-            {
-                case CellValues.Boolean:
-                    self.CellValue = new CellValue(valueForCell);
-                    break;
-
-                case CellValues.Date:
-                    self.CellValue = new CellValue(valueForCell);
-                    break;
-
-                case CellValues.Error:
-                    throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
-                case CellValues.InlineString:
-                    {
-                        Text newChild = new Text
-                        {
-                            Text = valueForCell
-                        };
-                        InlineString inlineString = new InlineString();
-                        inlineString.AppendChild(newChild);
-                        self.AppendChild(inlineString);
-                        break;
-                    }
-                case CellValues.Number:
-                    self.CellValue = new CellValue(valueForCell);
-                    break;
-
-                case CellValues.SharedString:
-                    throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
-                case CellValues.String:
-                    self.CellValue = new CellValue(valueForCell);
-                    break;
-
-                default:
-                    throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
-            }
+                Text = valueForCell
+            };
+            InlineString inlineString = new InlineString();
+            inlineString.AppendChild(newChild);
+            self.AppendChild(inlineString);
+        }
+        else if (dataType2 == CellValues.Number)
+        {
+            self.CellValue = new CellValue(valueForCell);
+        }
+        else if (dataType2 == CellValues.SharedString)
+        {
+            throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
+        }
+        else if (dataType2 == CellValues.String)
+        {
+            self.CellValue = new CellValue(valueForCell);
+        }
+        else
+        {
+            throw new NotImplementedException($"Support for CellValues value: {dataType} is not implemented yet.");
         }
 
         return self;
@@ -1627,85 +1631,67 @@ public static class ExcelUtilityMethods
         };
     }
 
-    internal static CellValues GetDataTypeForCell(string cellValue, CellValues dataType = CellValues.String)
+    internal static CellValues GetDataTypeForCell(string cellValue, CellValues dataType)
     {
         if (string.IsNullOrWhiteSpace(cellValue))
         {
             return dataType;
         }
-
-        switch (dataType)
+        if (dataType == CellValues.Boolean && cellValue.IsBoolean())
         {
-            case CellValues.Boolean:
-                if (cellValue.IsBoolean())
-                {
-                    return CellValues.Boolean;
-                }
-
-                return CellValues.String;
-
-            case CellValues.Date:
-                if (cellValue.IsDateTime())
-                {
-                    return CellValues.Date;
-                }
-
-                return CellValues.String;
-
-            case CellValues.Error:
-                return CellValues.Error;
-
-            case CellValues.InlineString:
-                return CellValues.InlineString;
-
-            case CellValues.Number:
-                if (cellValue.IsNumber())
-                {
-                    return CellValues.Number;
-                }
-
-                return CellValues.String;
-
-            case CellValues.SharedString:
-                return CellValues.SharedString;
-
-            case CellValues.String:
-                return CellValues.String;
-
-            default:
-                return CellValues.String;
+            return CellValues.Boolean;
         }
+        if (dataType == CellValues.Date && cellValue.IsDateTime())
+        {
+            return CellValues.Date;
+        }
+        if (dataType == CellValues.Error)
+        {
+            return CellValues.Error;
+        }
+        if (dataType == CellValues.InlineString)
+        {
+            return CellValues.InlineString;
+        }
+        if (dataType == CellValues.Number && cellValue.IsNumber())
+        {
+            return CellValues.Number;
+        }
+        if (dataType == CellValues.SharedString)
+        {
+            return CellValues.SharedString;
+        }
+        if (dataType == CellValues.String)
+        {
+            return CellValues.String;
+        }
+
+        return CellValues.String;
     }
 
     internal static string GetValueForCell(string? cellValue, CellValues dataType)
     {
-        switch (dataType)
+        if (dataType == CellValues.Boolean)
         {
-            case CellValues.Boolean:
+            bool? boolean = cellValue.GetBoolean();
+            if (boolean.HasValue)
+            {
+                if (!boolean.Value)
                 {
-                    bool? boolean = cellValue.GetBoolean();
-                    if (boolean.HasValue)
-                    {
-                        if (!boolean.Value)
-                        {
-                            return "0";
-                        }
-
-                        return "1";
-                    }
-
-                    break;
+                    return "0";
                 }
-            case CellValues.Date:
-                {
-                    DateTime? dateTime = cellValue.GetDateTime();
-                    if (dateTime.HasValue)
-                    {
-                        return Convert.ToString(dateTime.Value.ToOADate());
-                    }
 
-                    break;
-                }
+                return "1";
+            }
+        }
+
+        if (dataType == CellValues.Date)
+        {
+            DateTime? dateTime = cellValue.GetDateTime();
+            if (dateTime.HasValue)
+            {
+                return Convert.ToString(dateTime.Value.ToOADate());
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(cellValue))

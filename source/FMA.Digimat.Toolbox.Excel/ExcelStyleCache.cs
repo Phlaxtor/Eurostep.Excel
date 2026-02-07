@@ -29,10 +29,10 @@ namespace FMA.Digimat.Toolbox.Excel
 
     public sealed class ExcelStyleCache : IExcelStyleCache
     {
-        private readonly Dictionary<Type, uint?> _borderStyles = new Dictionary<Type, uint?>();
-        private readonly Dictionary<Type, uint?> _cellStyles = new Dictionary<Type, uint?>();
-        private readonly Dictionary<Type, uint?> _fillStyles = new Dictionary<Type, uint?>();
-        private readonly Dictionary<Type, uint?> _fontStyles = new Dictionary<Type, uint?>();
+        private readonly Dictionary<Type, uint?> _borderStyles = [];
+        private readonly Dictionary<Type, uint?> _cellStyles = [];
+        private readonly Dictionary<Type, uint?> _fillStyles = [];
+        private readonly Dictionary<Type, uint?> _fontStyles = [];
         private readonly Stylesheet _stylesheet;
 
         public ExcelStyleCache(SpreadsheetDocument excel)
@@ -82,10 +82,10 @@ namespace FMA.Digimat.Toolbox.Excel
             }
 
             uint? formatId = null;
-            var borderStyle = GetBorderStyle(style.BorderStyle);
-            var fillStyle = GetFillStyle(style.FillStyle);
-            var fontStyle = GetFontStyle(style.FontStyle);
-            var numberFormatId = GetNumberingFormatStyle(style.NumberingFormatStyle);
+            uint? borderStyle = GetBorderStyle(style.BorderStyle);
+            uint? fillStyle = GetFillStyle(style.FillStyle);
+            uint? fontStyle = GetFontStyle(style.FontStyle);
+            uint? numberFormatId = GetNumberingFormatStyle(style.NumberingFormatStyle);
             _cellStyles[style.GetType()] = result = _stylesheet.CreateCellFormat(numberFormatId, formatId, style.Alignment, fontStyle, borderStyle, fillStyle, style.Protection, style.PivotButton, style.QuotePrefix);
             return result;
         }

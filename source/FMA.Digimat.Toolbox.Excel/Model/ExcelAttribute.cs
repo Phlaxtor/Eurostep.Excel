@@ -102,6 +102,9 @@
 
         public Type StyleType { get; }
 
-        public virtual ExcelCellStyle GetStyle() => (ExcelCellStyle)Activator.CreateInstance(StyleType);
+        public virtual ExcelCellStyle GetStyle()
+        {
+            return (ExcelCellStyle)Activator.CreateInstance(StyleType);
+        }
     }
 }

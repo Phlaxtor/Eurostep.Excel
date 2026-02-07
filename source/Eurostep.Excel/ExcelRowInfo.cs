@@ -11,10 +11,10 @@ public sealed class ExcelRowInfo
     public ExcelRowInfo(Type type)
     {
         _type = type ?? throw new ArgumentNullException(nameof(type));
-        _propertyLookup = new Dictionary<string, ExcelPropertyInfo>();
-        var properties = type.GetExcelProperties();
+        _propertyLookup = [];
+        ICollection<ExcelPropertyInfo> properties = type.GetExcelProperties();
         _properties = new ExcelPropertyInfo[properties.Count];
-        foreach (var property in properties)
+        foreach (ExcelPropertyInfo property in properties)
         {
             _properties[property.Index] = property;
             _propertyLookup.Add(property.Id, property);
@@ -60,7 +60,7 @@ public sealed class ExcelRowInfo
 
     internal ExcelPropertyInfo[] GetProperties()
     {
-        var properties = new List<ExcelPropertyInfo>(_propertyLookup.Values);
+        List<ExcelPropertyInfo> properties = [.. _propertyLookup.Values];
         properties.Sort();
         return properties.ToArray();
     }

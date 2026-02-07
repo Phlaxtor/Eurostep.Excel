@@ -253,7 +253,7 @@ namespace FMA.Digimat.Toolbox.Excel.Model
                 return null;
             }
 
-            var columnNo = column.GetColumnIndexFromName();
+            uint columnNo = column.GetColumnIndexFromName();
             if (columnNo < 8)
             {
                 return null;
@@ -264,7 +264,7 @@ namespace FMA.Digimat.Toolbox.Excel.Model
                 return styleCache.GetCellStyle<UpdatedLastUpdateStyle>();
             }
 
-            var value = property.GetValue(this) as DeliveryReportValue;
+            DeliveryReportValue? value = property.GetValue(this) as DeliveryReportValue;
             if (value is not null && value.IsUpdated)
             {
                 return styleCache.GetCellStyle<UpdatedReportValueStyle>();

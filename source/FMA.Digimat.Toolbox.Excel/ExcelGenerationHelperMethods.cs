@@ -9,7 +9,7 @@ namespace FMA.Digimat.Toolbox.Excel
     {
         public static Table GetTable(this WorksheetPart self, string tableName)
         {
-            var table = self.TableDefinitionParts.FirstOrDefault(r => r.Table.Name == tableName);
+            TableDefinitionPart? table = self.TableDefinitionParts.FirstOrDefault(r => r.Table.Name == tableName);
             if (table == null)
             {
                 throw new ApplicationException($"Table {tableName} not found.");
@@ -20,7 +20,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static Dictionary<uint, Dictionary<string, string>> GetTableRows(this WorksheetPart self, string tableName)
         {
-            var table = self.GetTable(tableName);
+            Table table = self.GetTable(tableName);
 
             return self.GetTableRows(table);
         }
@@ -37,7 +37,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static WorksheetPart GetWorksheetPartBySheetName(this SpreadsheetDocument self, string sheetName)
         {
-            var sheet = self.WorkbookPart.Workbook.Sheets.FirstOrDefault(s => ((Sheet)s).Name == sheetName) as Sheet;
+            Sheet? sheet = self.WorkbookPart.Workbook.Sheets.FirstOrDefault(s => ((Sheet)s).Name == sheetName) as Sheet;
             if (sheet == null)
             {
                 throw new ApplicationException($"Sheet {sheetName} not found");
@@ -47,8 +47,8 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static Column AddColumn(this WorksheetPart worksheetPart, uint columnIndex, double width)
         {
-            var column = CreateColumn(columnIndex, width);
-            var columns = worksheetPart.Worksheet.GetFirstChild<Columns>();
+            Column column = CreateColumn(columnIndex, width);
+            Columns? columns = worksheetPart.Worksheet.GetFirstChild<Columns>();
             if (columns == null)
             {
                 columns = new Columns();
@@ -61,26 +61,28 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static Cell AddRowWithCell(this WorkbookPart workbookPart, string columnName, uint rowIndex, params CellText[] values)
         {
-            var worksheetPart = workbookPart.GetWorksheetPart();
-            var row = worksheetPart.AddRow(rowIndex);
-            var index = workbookPart.AddSharedString(values);
-            var cell = row.AddCell(columnName, dataType: CellValues.SharedString);
+            WorksheetPart worksheetPart = workbookPart.GetWorksheetPart();
+            Row row = worksheetPart.AddRow(rowIndex);
+            uint index = workbookPart.AddSharedString(values);
+            Cell cell = row.AddCell(columnName, null, CellValues.SharedString);
             cell.CellValue = new CellValue(index.ToString());
             return cell;
         }
 
         public static Cell AddRowWithCell(this WorkbookPart workbookPart, string columnName, uint rowIndex, string value, double? height = null, uint? styleIndex = null)
         {
-            var worksheetPart = workbookPart.GetWorksheetPart();
-            var row = worksheetPart.AddRow(rowIndex, height);
-            return row.AddCell(columnName, value, styleIndex, CellValues.String);
+            WorksheetPart worksheetPart = workbookPart.GetWorksheetPart();
+            Row row = worksheetPart.AddRow(rowIndex, height);
+            return row.AddCell(columnName, value, CellValues.String, styleIndex);
         }
 
-        public static Cell AddCell(this Row row, string columnName, string? value = null, uint? styleIndex = null, CellValues dataType = CellValues.String)
+        public static Cell AddCell(this Row row, string columnName, string? value, CellValues dataType, uint? styleIndex = null)
         {
-            var cell = new Cell();
-            cell.CellReference = string.Format("{0}{1}", columnName, row.RowIndex.Value);
-            cell.DataType = new EnumValue<CellValues>(dataType);
+            Cell cell = new Cell
+            {
+                CellReference = string.Format("{0}{1}", columnName, row.RowIndex.Value),
+                DataType = new EnumValue<CellValues>(dataType)
+            };
             if (styleIndex.HasValue)
             {
                 cell.StyleIndex = styleIndex.Value;
@@ -95,7 +97,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static Row AddRow(this WorksheetPart worksheetPart, uint rowIndex, double? height = null)
         {
-            var row = new Row() { RowIndex = rowIndex };
+            Row row = new Row() { RowIndex = rowIndex };
             if (height.HasValue)
             {
                 row.Height = height.Value;
@@ -107,43 +109,49 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static void SetSheetDimension(this WorksheetPart worksheetPart, string lastColumn, uint lastRow, string firstColumn = "A", uint firstRow = 1)
         {
-            var sheetDimension = new SheetDimension();
-            sheetDimension.Reference = new StringValue($"{firstColumn}{firstRow}:{lastColumn}{lastRow}");
+            SheetDimension sheetDimension = new SheetDimension
+            {
+                Reference = new StringValue($"{firstColumn}{firstRow}:{lastColumn}{lastRow}")
+            };
             worksheetPart.Worksheet.SheetDimension = sheetDimension;
         }
 
         public static void AddFilter(this WorksheetPart worksheetPart, string firstColumn, uint firstRow, string lastColumn, uint lastRow)
         {
-            var autoFilter = new AutoFilter();
-            autoFilter.Reference = new StringValue($"{firstColumn}{firstRow}:{lastColumn}{lastRow}");
+            AutoFilter autoFilter = new AutoFilter
+            {
+                Reference = new StringValue($"{firstColumn}{firstRow}:{lastColumn}{lastRow}")
+            };
             worksheetPart.Worksheet.InsertChildElement(autoFilter);
         }
 
         public static void MergeRowCells(this WorksheetPart worksheetPart, uint row, uint firstCol, uint lastCol)
         {
-            var reference = $"{firstCol.GetColumnNameFromIndex()}{row}:{lastCol.GetColumnNameFromIndex()}{row}";
+            string reference = $"{firstCol.GetColumnNameFromIndex()}{row}:{lastCol.GetColumnNameFromIndex()}{row}";
             worksheetPart.MergeCells(reference);
         }
 
         public static void MergeCells(this WorksheetPart worksheetPart, string mergeCellsReference)
         {
-            var mergeCells = worksheetPart.Worksheet.GetFirstChild<MergeCells>();
+            MergeCells? mergeCells = worksheetPart.Worksheet.GetFirstChild<MergeCells>();
             if (mergeCells == null)
             {
                 mergeCells = new MergeCells();
                 InsertChildElement(worksheetPart.Worksheet, mergeCells);
             }
-            var mergeCell = new MergeCell();
-            mergeCell.Reference = mergeCellsReference;
+            MergeCell mergeCell = new MergeCell
+            {
+                Reference = mergeCellsReference
+            };
             mergeCells.Append(mergeCell);
         }
 
         public static void WriteStringValueInCell(this WorksheetPart self, uint columnNo, uint rowIndex, string cellValue,
             uint? styleIndex = null)
         {
-            var columnName = columnNo.GetColumnNameFromIndex();
-            var cell = self.GetCell(columnName, rowIndex);
-            var value = string.IsNullOrWhiteSpace(cellValue) ? string.Empty : cellValue;
+            string columnName = columnNo.GetColumnNameFromIndex();
+            Cell cell = self.GetCell(columnName, rowIndex, CellValues.String);
+            string value = string.IsNullOrWhiteSpace(cellValue) ? string.Empty : cellValue;
             cell.DataType = new EnumValue<CellValues>(CellValues.String);
             cell.CellValue = new CellValue(value);
             if (styleIndex.HasValue)
@@ -153,7 +161,7 @@ namespace FMA.Digimat.Toolbox.Excel
         }
 
         public static Cell GetCell(this WorksheetPart self, string columnName, uint rowIndex,
-            CellValues dataType = CellValues.String, uint? styleIndex = null)
+            CellValues dataType, uint? styleIndex = null)
         {
             if (string.IsNullOrWhiteSpace(columnName))
             {
@@ -166,8 +174,8 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ArgumentNullException("self", "The provided WorksheetPart must not be null.");
             }
 
-            var sheetData = self.Worksheet.GetFirstChild<SheetData>();
-            var cellReference = string.Format("{0}{1}", columnName, rowIndex);
+            SheetData? sheetData = self.Worksheet.GetFirstChild<SheetData>();
+            string cellReference = string.Format("{0}{1}", columnName, rowIndex);
 
             // If the worksheet does not contain a row with the specified row index, insert one.
             Row row;
@@ -189,10 +197,10 @@ namespace FMA.Digimat.Toolbox.Excel
 
             // Cells must be in sequential order according to CellReference. Determine where to insert the new cell.
             Cell refCell = null;
-            var columnIndex = columnName.GetColumnIndexFromName();
-            foreach (var cell in row.Elements<Cell>())
+            uint columnIndex = columnName.GetColumnIndexFromName();
+            foreach (Cell cell in row.Elements<Cell>())
             {
-                var cellIndex = cell.GetColumnIndex();
+                uint cellIndex = cell.GetColumnIndex();
                 if (cellIndex > columnIndex)
                 {
                     refCell = cell;
@@ -200,9 +208,11 @@ namespace FMA.Digimat.Toolbox.Excel
                 }
             }
 
-            var newCell = new Cell();
-            newCell.CellReference = StringValue.ToString(cellReference);
-            newCell.DataType = new EnumValue<CellValues>(dataType);
+            Cell newCell = new Cell
+            {
+                CellReference = StringValue.ToString(cellReference),
+                DataType = new EnumValue<CellValues>(dataType)
+            };
             if (styleIndex.HasValue)
             {
                 newCell.StyleIndex = styleIndex.Value;
@@ -214,18 +224,20 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static Column CreateColumn(uint columnIndex, double columnWidth)
         {
-            var column = new Column();
-            column.Min = new UInt32Value(columnIndex);
-            column.Max = new UInt32Value(columnIndex);
-            column.Width = new DoubleValue(columnWidth);
-            column.CustomWidth = new BooleanValue(true);
-            column.BestFit = new BooleanValue(true);
+            Column column = new Column
+            {
+                Min = new UInt32Value(columnIndex),
+                Max = new UInt32Value(columnIndex),
+                Width = new DoubleValue(columnWidth),
+                CustomWidth = new BooleanValue(true),
+                BestFit = new BooleanValue(true)
+            };
             return column;
         }
 
         private static void AddDataValidation(this Worksheet worksheet, DataValidation dataValidation)
         {
-            var dataValidations = worksheet.GetFirstChild<DataValidations>();
+            DataValidations? dataValidations = worksheet.GetFirstChild<DataValidations>();
             if (dataValidations == null)
             {
                 dataValidations = new DataValidations();
@@ -252,7 +264,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static void AddDataValidation(this WorksheetPart worksheetPart, DataValidationValues validationType, string validatedCellsRange, string formula1Text, string formula2Text, bool allowBlanks, string errorTitle, string errorText)
         {
-            var validation = new DataValidation
+            DataValidation validation = new DataValidation
             {
                 AllowBlank = allowBlanks,
                 SequenceOfReferences = new ListValue<StringValue> { InnerText = validatedCellsRange },
@@ -267,12 +279,12 @@ namespace FMA.Digimat.Toolbox.Excel
             }
             if (formula1Text != null)
             {
-                var formula = new Formula1 { Text = formula1Text };
+                Formula1 formula = new Formula1 { Text = formula1Text };
                 validation.Append(formula);
             }
             if (formula2Text != null)
             {
-                var formula = new Formula2 { Text = formula2Text };
+                Formula2 formula = new Formula2 { Text = formula2Text };
                 validation.Append(formula);
             }
             worksheetPart.Worksheet.AddDataValidation(validation);
@@ -284,7 +296,7 @@ namespace FMA.Digimat.Toolbox.Excel
             if (promptText.Length > 255) throw new ArgumentException($"Prompt text too long (max 255 characters allowed, actual length: {promptText.Length})", "promptText");
             promptText = promptText.Replace("\\r\\n", "_x000a_");
             promptText = promptText.Replace("\r\n", "_x000a_");
-            var validation = new DataValidation
+            DataValidation validation = new DataValidation
             {
                 SequenceOfReferences = new ListValue<StringValue> { InnerText = validatedCellsRange },
                 ShowInputMessage = true,
@@ -300,7 +312,7 @@ namespace FMA.Digimat.Toolbox.Excel
             {
                 self.BookViews = new BookViews();
             }
-            var view = self.BookViews.ChildElements.First<WorkbookView>();
+            WorkbookView? view = self.BookViews.ChildElements.First<WorkbookView>();
             if (view == null)
             {
                 view = self.BookViews.AppendChild(new WorkbookView());
@@ -320,7 +332,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static void InsertChildElement(this Worksheet sheet, OpenXmlElement child)
         {
-            var sheetDataPosition = 5;
+            int sheetDataPosition = 5;
             // NB: Worksheet children must be appended in the correct order (matching the order in the sequence of CT_Worksheet in sml.xsd)
             // we can assumme that SheetData is always present
             Type[] sequence =
@@ -364,8 +376,8 @@ namespace FMA.Digimat.Toolbox.Excel
             typeof(ExtensionList) //<xsd:element name="extLst" type="CT_ExtensionList" minOccurs="0" maxOccurs="1"/>
         };
 
-            var isBeforeSheetData = false;
-            for (var i = 0; i < sheetDataPosition; i++)
+            bool isBeforeSheetData = false;
+            for (int i = 0; i < sheetDataPosition; i++)
             {
                 if (child.GetType().Name == sequence[i].Name)
                 {
@@ -434,20 +446,22 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static Stylesheet GetStylesheet(this SpreadsheetDocument doc)
         {
-            var stylesPart = doc.WorkbookPart.WorkbookStylesPart;
+            WorkbookStylesPart? stylesPart = doc.WorkbookPart.WorkbookStylesPart;
             if (stylesPart is null)
             {
                 stylesPart = doc.WorkbookPart.AddNewPart<WorkbookStylesPart>();
             }
 
-            var stylesheet = stylesPart.Stylesheet;
+            Stylesheet? stylesheet = stylesPart.Stylesheet;
             if (stylesheet is null)
             {
-                stylesheet = new Stylesheet();
-                stylesheet.Fonts = new Fonts();
-                stylesheet.Fills = new Fills();
-                stylesheet.Borders = new Borders();
-                stylesheet.CellFormats = new CellFormats();
+                stylesheet = new Stylesheet
+                {
+                    Fonts = new Fonts(),
+                    Fills = new Fills(),
+                    Borders = new Borders(),
+                    CellFormats = new CellFormats()
+                };
                 stylesPart.Stylesheet = stylesheet;
                 stylesheet.Save();
             }
@@ -457,10 +471,10 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static void InsertChildElementBefore(Worksheet sheet, OpenXmlElement child, Type[] sequence)
         {
-            var possiblePredecessors = GetPossibleSuccessors(child, sequence);
+            List<Type> possiblePredecessors = GetPossibleSuccessors(child, sequence);
             new List<Type>();
 
-            foreach (var element in sheet.ChildElements)
+            foreach (OpenXmlElement element in sheet.ChildElements)
             {
                 if (possiblePredecessors.Contains(element.GetType()))
                 {
@@ -474,8 +488,8 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static List<Type> GetPossibleSuccessors(OpenXmlElement child, Type[] sequence)
         {
-            var possibleSuccessors = new List<Type>();
-            for (var i = sequence.Length - 1; i > 0; i--)
+            List<Type> possibleSuccessors = [];
+            for (int i = sequence.Length - 1; i > 0; i--)
             {
                 if (child.GetType().Name == sequence[i].Name)
                 {
@@ -490,10 +504,10 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static void InsertChildElementAfter(Worksheet sheet, OpenXmlElement child, Type[] sequence)
         {
-            var possiblePredecessors = GetPossiblePredecessors(child, sequence);
+            List<Type> possiblePredecessors = GetPossiblePredecessors(child, sequence);
             new List<Type>();
 
-            foreach (var element in sheet.ChildElements.Reverse())
+            foreach (OpenXmlElement? element in sheet.ChildElements.Reverse())
             {
                 if (possiblePredecessors.Contains(element.GetType()))
                 {
@@ -507,8 +521,8 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static List<Type> GetPossiblePredecessors(OpenXmlElement child, Type[] sequence)
         {
-            var possiblePredecessors = new List<Type>();
-            for (var i = 0; i < sequence.Length; i++)
+            List<Type> possiblePredecessors = [];
+            for (int i = 0; i < sequence.Length; i++)
             {
                 if (child.GetType().Name == sequence[i].Name)
                 {

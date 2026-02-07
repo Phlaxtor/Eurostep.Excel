@@ -17,8 +17,8 @@ namespace FMA.Digimat.Toolbox.Excel
                     return self.GetRowsExcelSheetArea(self.Worksheet.SheetDimension);
                 }
 
-                var upperRightCell = GetUpperRightCell(self);
-                var lowerLeftCell = GetLowerLeftCell(self);
+                Cell? upperRightCell = GetUpperRightCell(self);
+                Cell? lowerLeftCell = GetLowerLeftCell(self);
                 return self.GetRowsExcelSheetArea(upperRightCell, lowerLeftCell);
             }
 
@@ -27,11 +27,11 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static Cell? GetLowerLeftCell(WorksheetPart self)
         {
-            var lowerLeftCell = self.Worksheet.Descendants<Row>()?.LastOrDefault()?
+            Cell? lowerLeftCell = self.Worksheet.Descendants<Row>()?.LastOrDefault()?
                 .Descendants<Cell>()?.FirstOrDefault();
             if (lowerLeftCell == null)
             {
-                var sheetData = self.Worksheet.ChildElements.FirstOrDefault(c => c is SheetData);
+                OpenXmlElement? sheetData = self.Worksheet.ChildElements.FirstOrDefault(c => c is SheetData);
                 lowerLeftCell = sheetData?.LastChild?.FirstChild as Cell;
             }
             return lowerLeftCell;
@@ -39,11 +39,11 @@ namespace FMA.Digimat.Toolbox.Excel
 
         private static Cell? GetUpperRightCell(WorksheetPart self)
         {
-            var upperRightCell = self.Worksheet.Descendants<Row>()?.FirstOrDefault()?
+            Cell? upperRightCell = self.Worksheet.Descendants<Row>()?.FirstOrDefault()?
                 .Descendants<Cell>()?.LastOrDefault();
             if (upperRightCell == null)
             {
-                var sheetData = self.Worksheet.ChildElements.FirstOrDefault(c => c is SheetData);
+                OpenXmlElement? sheetData = self.Worksheet.ChildElements.FirstOrDefault(c => c is SheetData);
                 upperRightCell = sheetData?.FirstChild?.LastChild as Cell;
             }
             return upperRightCell;
@@ -62,10 +62,10 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ArgumentNullException("lowerLeftCell", "The provided Cell must not be null.");
             }
 
-            var columnStart = lowerLeftCell.GetColumnName();
-            var columnEnd = upperRightCell.GetColumnName();
-            var rowStart = upperRightCell.GetRowIndex();
-            var rowEnd = lowerLeftCell.GetRowIndex();
+            string columnStart = lowerLeftCell.GetColumnName();
+            string columnEnd = upperRightCell.GetColumnName();
+            uint rowStart = upperRightCell.GetRowIndex();
+            uint rowEnd = lowerLeftCell.GetRowIndex();
 
             return self.GetRowsExcelSheetArea(columnStart, rowStart, columnEnd, rowEnd);
         }
@@ -89,13 +89,13 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ArgumentException("The provided areaReference must have a value and must contain a semicolon.", "areaReference");
             }
 
-            var startEndValues = areaReference.Value.Split(':');
-            var startValue = startEndValues.FirstOrDefault();
-            var endValue = startEndValues.LastOrDefault();
-            var columnStart = GetColumnName(startValue);
-            var columnEnd = GetColumnName(endValue);
-            var rowStart = GetRowIndex(startValue);
-            var rowEnd = GetRowIndex(endValue);
+            string[] startEndValues = areaReference.Value.Split(':');
+            string? startValue = startEndValues.FirstOrDefault();
+            string? endValue = startEndValues.LastOrDefault();
+            string columnStart = GetColumnName(startValue);
+            string columnEnd = GetColumnName(endValue);
+            uint rowStart = GetRowIndex(startValue);
+            uint rowEnd = GetRowIndex(endValue);
 
             return self.GetRowsExcelSheetArea(columnStart, rowStart, columnEnd, rowEnd);
         }
@@ -107,13 +107,13 @@ namespace FMA.Digimat.Toolbox.Excel
                 throw new ArgumentException("The provided areaReference must have a value and must contain a semicolon.", "areaReference");
             }
 
-            var startEndValues = areaReference.Value.Split(':');
-            var startValue = startEndValues.FirstOrDefault();
-            var endValue = startEndValues.LastOrDefault();
-            var columnStart = GetColumnName(startValue);
-            var columnEnd = GetColumnName(endValue);
-            var rowStart = GetRowIndex(startValue);
-            var rowEnd = GetRowIndex(endValue);
+            string[] startEndValues = areaReference.Value.Split(':');
+            string? startValue = startEndValues.FirstOrDefault();
+            string? endValue = startEndValues.LastOrDefault();
+            string columnStart = GetColumnName(startValue);
+            string columnEnd = GetColumnName(endValue);
+            uint rowStart = GetRowIndex(startValue);
+            uint rowEnd = GetRowIndex(endValue);
 
             return
                 self.Worksheet.Descendants<Cell>().Where(c =>
@@ -127,8 +127,8 @@ namespace FMA.Digimat.Toolbox.Excel
         private static Dictionary<uint, Dictionary<string, string>> GetRowsExcelSheetArea(this WorksheetPart self,
     string columnStart, uint rowStart, string columnEnd, uint rowEnd)
         {
-            var returnArrayOfRows = new Dictionary<uint, Dictionary<string, string>>();
-            var indexedRow = new Dictionary<string, string>();
+            Dictionary<uint, Dictionary<string, string>> returnArrayOfRows = [];
+            Dictionary<string, string> indexedRow = [];
             IEnumerable<Cell> cells =
                 self.Worksheet.Descendants<Cell>().Where(
                         c =>
@@ -139,23 +139,22 @@ namespace FMA.Digimat.Toolbox.Excel
                     .OrderBy(q => q.GetRowIndex())
                     .ThenBy(r => r.GetColumnIndex());
 
-            var spreadsheetDocument = self.OpenXmlPackage as SpreadsheetDocument;
+            SpreadsheetDocument? spreadsheetDocument = self.OpenXmlPackage as SpreadsheetDocument;
             SharedStringItem[]? sharedStringItems = null;
-            var shareStringPart = spreadsheetDocument.WorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+            SharedStringTablePart? shareStringPart = spreadsheetDocument.WorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
             if (shareStringPart != null)
             {
                 sharedStringItems = shareStringPart.SharedStringTable.Elements<SharedStringItem>().ToArray();
             }
 
-            foreach (var cell in cells)
+            foreach (Cell cell in cells)
             {
-                var columnName = cell.GetColumnName();
-                var rowNumber = cell.GetRowIndex();
-                var cellValue = spreadsheetDocument.GetCellValue(cell, sharedStringItems);
-                Dictionary<string, string> rowInfo;
-                if (!returnArrayOfRows.TryGetValue(rowNumber, out rowInfo))
+                string columnName = cell.GetColumnName();
+                uint rowNumber = cell.GetRowIndex();
+                string cellValue = spreadsheetDocument.GetCellValue(cell, sharedStringItems);
+                if (!returnArrayOfRows.TryGetValue(rowNumber, out Dictionary<string, string> rowInfo))
                 {
-                    rowInfo = new Dictionary<string, string>();
+                    rowInfo = [];
                     returnArrayOfRows[rowNumber] = rowInfo;
                 }
 
@@ -173,7 +172,7 @@ namespace FMA.Digimat.Toolbox.Excel
                     "The provided SpreadsheetDocument in the extension method must not be null.");
             }
 
-            var foundValue = string.Empty;
+            string foundValue = string.Empty;
 
             // If the content of the first cell is stored as a shared string, get the text of the first cell
             // from the SharedStringTablePart and return it. Otherwise, return the string value of the cell.
@@ -181,7 +180,7 @@ namespace FMA.Digimat.Toolbox.Excel
             {
                 if (sharedStringItems == null)
                 {
-                    var shareStringPart = self.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                    SharedStringTablePart shareStringPart = self.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
                     sharedStringItems = shareStringPart.SharedStringTable.Elements<SharedStringItem>().ToArray();
                 }
                 foundValue = sharedStringItems[int.Parse(cell.CellValue.Text)].InnerText;
@@ -199,14 +198,14 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static int CompareColumn(this Cell cell, string comparedTo)
         {
-            var c1 = cell.GetColumnIndex();
-            var c2 = GetColumnIndexFromName(comparedTo);
+            uint c1 = cell.GetColumnIndex();
+            uint c2 = GetColumnIndexFromName(comparedTo);
             return c1.CompareTo(c2);
         }
 
         public static int CompareRow(this Cell cell, uint comparedTo)
         {
-            var c1 = cell.GetRowIndex();
+            uint c1 = cell.GetRowIndex();
             return c1.CompareTo(comparedTo);
         }
 
@@ -222,17 +221,17 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static uint GetColumnIndexFromName(this string columnName)
         {
-            var result = 0.0;
+            double result = 0.0;
             if (!string.IsNullOrWhiteSpace(columnName))
             {
-                var alphabet = new[]
+                char[] alphabet = new[]
                 {
                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                 'U', 'V', 'W', 'X', 'Y', 'Z'
             };
 
-                var columnNameChars = columnName.ToUpper().ToCharArray(0, columnName.Length).Reverse().ToArray();
-                for (var i = 0; i < columnName.Length; i++)
+                char[] columnNameChars = columnName.ToUpper().ToCharArray(0, columnName.Length).Reverse().ToArray();
+                for (int i = 0; i < columnName.Length; i++)
                 {
                     result = result + System.Math.Pow(alphabet.Length, i) *
                         (Array.IndexOf(alphabet, columnNameChars[i]) + 1);
@@ -255,17 +254,17 @@ namespace FMA.Digimat.Toolbox.Excel
         public static string GetColumnName(this string cellReference)
         {
             // Create a regular expression to match the column name portion of the cell name.
-            var regex = new Regex("[A-Za-z]+");
-            var match = regex.Match(cellReference);
+            Regex regex = new Regex("[A-Za-z]+");
+            Match match = regex.Match(cellReference);
             return match.Value;
         }
 
         public static string GetColumnNameFromIndex(this uint columnIndex)
         {
-            var columnName = string.Empty;
+            string columnName = string.Empty;
             while (columnIndex > 0)
             {
-                var remainder = (columnIndex - 1) % 26;
+                uint remainder = (columnIndex - 1) % 26;
                 columnName = Convert.ToChar(65 + remainder) + columnName;
                 columnIndex = (columnIndex - remainder) / 26;
             }
@@ -276,14 +275,14 @@ namespace FMA.Digimat.Toolbox.Excel
         public static uint GetRowIndex(this string cellName)
         {
             // Create a regular expression to match the row index portion the cell name.
-            var regex = new Regex(@"\d+");
-            var match = regex.Match(cellName);
+            Regex regex = new Regex(@"\d+");
+            Match match = regex.Match(cellName);
             return uint.Parse(match.Value);
         }
 
         public static WorkbookPart GetWorkbookPart(this SpreadsheetDocument spreadsheet)
         {
-            var workbookPart = spreadsheet.WorkbookPart ?? spreadsheet.AddWorkbookPart();
+            WorkbookPart workbookPart = spreadsheet.WorkbookPart ?? spreadsheet.AddWorkbookPart();
             if (workbookPart.Workbook is null)
             {
                 workbookPart.Workbook = new Workbook(new Sheets());
@@ -294,8 +293,8 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static WorksheetPart GetWorksheetPart(this WorkbookPart workbookPart)
         {
-            var worksheetParts = workbookPart.GetPartsOfType<WorksheetPart>();
-            var worksheetPart = worksheetParts.FirstOrDefault();
+            IEnumerable<WorksheetPart> worksheetParts = workbookPart.GetPartsOfType<WorksheetPart>();
+            WorksheetPart? worksheetPart = worksheetParts.FirstOrDefault();
             if (worksheetPart is null)
             {
                 worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
@@ -307,9 +306,9 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static void AddSheet(this WorkbookPart workbookPart, string sheetName)
         {
-            var worksheetPart = workbookPart.GetWorksheetPart();
-            var newSheetId = (uint)workbookPart.Workbook.Sheets.Count() + 1;
-            var sheet = new Sheet
+            WorksheetPart worksheetPart = workbookPart.GetWorksheetPart();
+            uint newSheetId = (uint)workbookPart.Workbook.Sheets.Count() + 1;
+            Sheet sheet = new Sheet
             {
                 Id = workbookPart.GetIdOfPart(worksheetPart),
                 SheetId = newSheetId,
@@ -321,8 +320,8 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static SharedStringTablePart GetSharedStringTablePart(this WorkbookPart workbookPart)
         {
-            var sharedStringTableParts = workbookPart.GetPartsOfType<SharedStringTablePart>();
-            var sharedStringTablePart = sharedStringTableParts.FirstOrDefault();
+            IEnumerable<SharedStringTablePart> sharedStringTableParts = workbookPart.GetPartsOfType<SharedStringTablePart>();
+            SharedStringTablePart? sharedStringTablePart = sharedStringTableParts.FirstOrDefault();
             if (sharedStringTablePart is null)
             {
                 sharedStringTablePart = workbookPart.AddNewPart<SharedStringTablePart>();
@@ -333,7 +332,7 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static uint AddSharedStringItem(this WorkbookPart workbookPart, SharedStringItem value)
         {
-            var sharedStringTablePart = workbookPart.GetSharedStringTablePart();
+            SharedStringTablePart sharedStringTablePart = workbookPart.GetSharedStringTablePart();
             sharedStringTablePart.SharedStringTable.AppendChild(value);
             if (sharedStringTablePart.SharedStringTable.Count is null)
             {
@@ -348,37 +347,39 @@ namespace FMA.Digimat.Toolbox.Excel
 
         public static uint AddSharedString(this WorkbookPart workbookPart, string value)
         {
-            var text = new Text(value);
-            var item = new SharedStringItem(text);
+            Text text = new Text(value);
+            SharedStringItem item = new SharedStringItem(text);
             return workbookPart.AddSharedStringItem(item);
         }
 
         public static uint AddSharedString(this WorkbookPart workbookPart, params CellText[] values)
         {
-            var elements = new List<Run>();
-            foreach (var value in values)
+            List<Run> elements = [];
+            foreach (CellText value in values)
             {
-                var run = GetRun(value.Style, value.Value);
+                Run run = GetRun(value.Style, value.Value);
                 elements.Add(run);
             }
-            var item = new SharedStringItem(elements);
+            SharedStringItem item = new SharedStringItem(elements);
             return workbookPart.AddSharedStringItem(item);
         }
 
         public static Run GetRun(ExcelFontStyle style, string value)
         {
-            var run = new Run();
-            var runProperties = GetRunProperties(style);
+            Run run = new Run();
+            RunProperties runProperties = GetRunProperties(style);
             run.AppendChild(runProperties);
-            var text = new Text(value);
-            text.Space = SpaceProcessingModeValues.Preserve;
+            Text text = new Text(value)
+            {
+                Space = SpaceProcessingModeValues.Preserve
+            };
             run.AppendChild(text);
             return run;
         }
 
         public static RunProperties GetRunProperties(ExcelFontStyle style)
         {
-            var runProperties = new RunProperties();
+            RunProperties runProperties = new RunProperties();
             if (string.IsNullOrEmpty(style.FontColor) == false)
             {
                 runProperties.AppendChild(new Color { Rgb = style.FontColor });

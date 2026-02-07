@@ -52,7 +52,7 @@ namespace Eurostep.Excel
             return GetCellFormat(value);
         }
 
-        public CellValues GetCellValues(string? index, CellValues defaultValue = CellValues.String)
+        public CellValues GetCellValues(string? index, CellValues defaultValue)
         {
             CellFormat? cellFormat = GetCellFormat(index);
             if (cellFormat == null) return defaultValue;

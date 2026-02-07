@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace FMA.Digimat.Toolbox.Excel.Model
 {
     public abstract class CommonExcelRow : ExcelRow, ICommonExcelRowData, IAmmunitionsExcelRowData, IChemicalsExcelRowData, IClothingExcelRowData, ISparePartExcelRowData, IOtherItemExcelRowData
     {
-        public CommonExcelRow() { }
+        public CommonExcelRow()
+        { }
+
         public override uint FirstDataRow => 5;
         public override uint HeaderRow => 2;
         public uint GroupHeaderRow => 1;
@@ -169,14 +163,14 @@ namespace FMA.Digimat.Toolbox.Excel.Model
 
         public Dictionary<string, string> GetFriendlyNameLookup()
         {
-            var lookup = new Dictionary<string, string>();
-            Type objtype = this.GetType();
+            Dictionary<string, string> lookup = [];
+            Type objtype = GetType();
             foreach (PropertyInfo p in objtype.GetProperties())
             {
-                var fieldAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute) as ExcelColumnAttribute;
+                ExcelColumnAttribute? fieldAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute) as ExcelColumnAttribute;
                 if (fieldAttribute != null && HeadingsWithColumnNames.ContainsKey((fieldAttribute.Heading)))
                 {
-                    var columnName = HeadingsWithColumnNames[fieldAttribute.Heading];
+                    string columnName = HeadingsWithColumnNames[fieldAttribute.Heading];
                     lookup[p.Name] = $"cell {columnName}{RowId} ({fieldAttribute.Heading})";
                 }
             }

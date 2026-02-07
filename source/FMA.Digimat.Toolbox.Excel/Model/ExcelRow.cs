@@ -19,13 +19,13 @@ namespace FMA.Digimat.Toolbox.Excel.Model
         {
             RowId = row.Key;
             DetailsForLogging = $"sheet: {SheetName}; row: {RowId}";
-            Type objtype = this.GetType();
+            Type objtype = GetType();
             foreach (PropertyInfo p in objtype.GetProperties())
             {
-                var fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
+                object? fieldNameAttribute = p.GetCustomAttributes(false).FirstOrDefault(z => z is ExcelColumnAttribute);
                 if (fieldNameAttribute != null && HeadingsWithColumnNames.ContainsKey(((ExcelColumnAttribute)fieldNameAttribute).Heading))
                 {
-                    var key = HeadingsWithColumnNames[((ExcelColumnAttribute)fieldNameAttribute).Heading];
+                    string key = HeadingsWithColumnNames[((ExcelColumnAttribute)fieldNameAttribute).Heading];
 
                     if (p.PropertyType == typeof(string))
                     {
@@ -109,27 +109,27 @@ namespace FMA.Digimat.Toolbox.Excel.Model
 
         internal static void WriteData<T>(Stream stream, ReportHeader header, IEnumerable<ExcelRow> excelRows, string sheetName) where T : ExcelRow
         {
-            var columnInfos = GetColumnInfos<T>();
-            var firstColumn = columnInfos.First();
-            var lastColumn = columnInfos.Last();
-            using var doc = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-            var workbookPart = doc.GetWorkbookPart();
-            var worksheetPart = workbookPart.GetWorksheetPart();
+            ColumnInfo[] columnInfos = GetColumnInfos<T>();
+            ColumnInfo firstColumn = columnInfos.First();
+            ColumnInfo lastColumn = columnInfos.Last();
+            using SpreadsheetDocument doc = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+            WorkbookPart workbookPart = doc.GetWorkbookPart();
+            WorksheetPart worksheetPart = workbookPart.GetWorksheetPart();
             workbookPart.AddSheet(sheetName);
-            var stylesheetCache = new ExcelStyleCache(doc);
+            ExcelStyleCache stylesheetCache = new ExcelStyleCache(doc);
             uint rowNo = 0;
-            foreach (var columnInfo in columnInfos)
+            foreach (ColumnInfo columnInfo in columnInfos)
             {
-                var column = worksheetPart.AddColumn(columnInfo.ColumnNo, columnInfo.Width);
+                DocumentFormat.OpenXml.Spreadsheet.Column column = worksheetPart.AddColumn(columnInfo.ColumnNo, columnInfo.Width);
                 if (columnInfo.ColumnStyle is not null)
                 {
                     column.Style = stylesheetCache.GetCellStyle(columnInfo.ColumnStyle);
                 }
             }
 
-            var titleStyle = stylesheetCache.GetCellStyle<ReportTitleStyle>();
-            var ths = new TitleHeaderFontStyle();
-            var thts = new TitleHeaderTextFontStyle();
+            uint? titleStyle = stylesheetCache.GetCellStyle<ReportTitleStyle>();
+            TitleHeaderFontStyle ths = new TitleHeaderFontStyle();
+            TitleHeaderTextFontStyle thts = new TitleHeaderTextFontStyle();
 
             rowNo++;
             workbookPart.AddRowWithCell("A", rowNo, "DIGIMAT Material Delivery Report", 46, titleStyle);
@@ -145,9 +145,9 @@ namespace FMA.Digimat.Toolbox.Excel.Model
             workbookPart.AddRowWithCell("A", rowNo, CellText.New("Section/Category: ", ths), CellText.New(header.Section, thts));
             rowNo += 3;
 
-            var groupHeaderRow = rowNo;
+            uint groupHeaderRow = rowNo;
             uint lastMergeColumn = 0;
-            foreach (var columnInfo in columnInfos)
+            foreach (ColumnInfo columnInfo in columnInfos)
             {
                 if (string.IsNullOrEmpty(columnInfo.MergeCellTitle))
                 {
@@ -162,28 +162,28 @@ namespace FMA.Digimat.Toolbox.Excel.Model
                     lastMergeColumn = columnInfo.ColumnNo + columnInfo.MergeCellCount;
                     worksheetPart.MergeRowCells(rowNo, columnInfo.ColumnNo, lastMergeColumn);
                 }
-                var mergeStyle = stylesheetCache.GetCellStyle(columnInfo.MergeCellStyle);
+                uint? mergeStyle = stylesheetCache.GetCellStyle(columnInfo.MergeCellStyle);
                 worksheetPart.WriteStringValueInCell(columnInfo.ColumnNo, rowNo, columnInfo.MergeCellTitle, mergeStyle);
             }
 
             rowNo++;
-            var headerRow = rowNo;
-            foreach (var columnInfo in columnInfos)
+            uint headerRow = rowNo;
+            foreach (ColumnInfo columnInfo in columnInfos)
             {
-                var headerStyle = stylesheetCache.GetCellStyle(columnInfo.HeaderStyle);
+                uint? headerStyle = stylesheetCache.GetCellStyle(columnInfo.HeaderStyle);
                 worksheetPart.WriteStringValueInCell(columnInfo.ColumnNo, rowNo, columnInfo.Heading, headerStyle);
             }
 
-            var firstContentRow = rowNo + 1;
+            uint firstContentRow = rowNo + 1;
             foreach (T excelRow in excelRows)
             {
                 rowNo++;
                 excelRow.RowId = rowNo;
-                foreach (var columnInfo in columnInfos)
+                foreach (ColumnInfo columnInfo in columnInfos)
                 {
-                    var value = columnInfo.Property.GetValue(excelRow);
-                    var excelValue = value?.ToString() ?? string.Empty;
-                    var styleIndex = excelRow.GetRuntimeCellStyle(stylesheetCache, columnInfo.Property, columnInfo.Column, rowNo);
+                    object? value = columnInfo.Property.GetValue(excelRow);
+                    string excelValue = value?.ToString() ?? string.Empty;
+                    uint? styleIndex = excelRow.GetRuntimeCellStyle(stylesheetCache, columnInfo.Property, columnInfo.Column, rowNo);
                     if (styleIndex.HasValue == false)
                     {
                         styleIndex = stylesheetCache.GetCellStyle(columnInfo.CellStyle);
@@ -200,22 +200,22 @@ namespace FMA.Digimat.Toolbox.Excel.Model
 
         private static ColumnInfo[] GetColumnInfos<T>() where T : ExcelRow
         {
-            var result = new Dictionary<string, ColumnInfo>();
-            var rowType = typeof(T);
-            foreach (var property in rowType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            Dictionary<string, ColumnInfo> result = [];
+            Type rowType = typeof(T);
+            foreach (PropertyInfo property in rowType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                var columnAttr = property.GetCustomAttribute<ExcelColumnAttribute>();
+                ExcelColumnAttribute? columnAttr = property.GetCustomAttribute<ExcelColumnAttribute>();
                 if (columnAttr is null)
                 {
                     continue;
                 }
 
-                var columnNo = columnAttr.Column.GetColumnIndexFromName();
-                var cellStyle = property.GetCustomAttribute<ExcelCellStyleBaseAttribute>();
-                var columnStyle = property.GetCustomAttribute<ExcelColumnStyleBaseAttribute>();
-                var headerStyle = property.GetCustomAttribute<ExcelHeaderStyleBaseAttribute>();
-                var mergeStyle = property.GetCustomAttribute<ExcelMergeColumnsBaseAttribute>();
-                var columnInfo = new ColumnInfo
+                uint columnNo = columnAttr.Column.GetColumnIndexFromName();
+                ExcelCellStyleBaseAttribute? cellStyle = property.GetCustomAttribute<ExcelCellStyleBaseAttribute>();
+                ExcelColumnStyleBaseAttribute? columnStyle = property.GetCustomAttribute<ExcelColumnStyleBaseAttribute>();
+                ExcelHeaderStyleBaseAttribute? headerStyle = property.GetCustomAttribute<ExcelHeaderStyleBaseAttribute>();
+                ExcelMergeColumnsBaseAttribute? mergeStyle = property.GetCustomAttribute<ExcelMergeColumnsBaseAttribute>();
+                ColumnInfo columnInfo = new ColumnInfo
                 {
                     CellStyle = cellStyle?.GetStyle(),
                     Column = columnAttr.Column,
@@ -231,7 +231,7 @@ namespace FMA.Digimat.Toolbox.Excel.Model
                     Width = columnAttr.Width,
                 };
 
-                if (result.TryGetValue(columnInfo.Column, out var duplicated))
+                if (result.TryGetValue(columnInfo.Column, out ColumnInfo? duplicated))
                 {
                     throw new InvalidDataException($"Duplicate column '{columnInfo.Column}', column with header '{columnInfo.Heading}' exist already with heading '{duplicated.Heading}'");
                 }

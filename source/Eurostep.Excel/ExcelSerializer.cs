@@ -1,10 +1,8 @@
-﻿using System.Collections;
-
-namespace Eurostep.Excel;
+﻿namespace Eurostep.Excel;
 
 public sealed class ExcelSerializer
 {
-    private readonly Dictionary<Type, ExcelRowInfo> _typeToRowInfo = new Dictionary<Type, ExcelRowInfo>();
+    private readonly Dictionary<Type, ExcelRowInfo> _typeToRowInfo = [];
 
     public ExcelSerializer(Type type)
     {
@@ -13,7 +11,7 @@ public sealed class ExcelSerializer
 
     public ExcelSerializer(IEnumerable<Type> types)
     {
-        foreach (var type in types)
+        foreach (Type type in types)
         {
             _typeToRowInfo[type] = new ExcelRowInfo(type);
         }
@@ -39,22 +37,22 @@ public sealed class ExcelSerializer
 
     private void Initialize(ExcelWriter writer, ExcelSerializationSettings settings, Type type)
     {
-        if (_typeToRowInfo.TryGetValue(type, out var rowInfo) == false)
+        if (_typeToRowInfo.TryGetValue(type, out ExcelRowInfo? rowInfo) == false)
         {
             throw new ApplicationException();
         }
         writer.SetCurrentTab(settings.SheetName);
         if (settings.UseHeaders)
         {
-            var properties = rowInfo.GetProperties();
+            ExcelPropertyInfo[] properties = rowInfo.GetProperties();
             WriteHeader(writer, properties);
         }
     }
 
     private void WriteHeader(ExcelWriter writer, ExcelPropertyInfo[] properties)
     {
-        var builder = writer.AddHeaders();
-        foreach (var item in properties)
+        HeaderBuilder builder = writer.AddHeaders();
+        foreach (ExcelPropertyInfo item in properties)
         {
             builder.New(item.Name, item.Width);
         }

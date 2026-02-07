@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FMA.Digimat.Toolbox.Excel.Model
+﻿namespace FMA.Digimat.Toolbox.Excel.Model
 {
     public class AmmunitionsExcelRow : CommonExcelRow
     {
@@ -48,6 +42,5 @@ namespace FMA.Digimat.Toolbox.Excel.Model
             { ColumnHeading.USOrigin                   ,   "AI" },
             { ColumnHeading.RadioactiveMaterial        ,   "AJ" },
         };
-
     }
 }

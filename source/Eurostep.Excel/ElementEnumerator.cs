@@ -8,6 +8,13 @@ namespace Eurostep.Excel
     {
         private T? _current;
 
+        protected ElementEnumerator(IEnumerable<OpenXmlElement> enumerable, ExcelContext context)
+        {
+            Enumerator = enumerable.GetEnumerator();
+            Context = context;
+            Init();
+        }
+
         protected ElementEnumerator(IEnumerator<OpenXmlElement> enumerator, ExcelContext context)
         {
             Enumerator = enumerator;
